@@ -58,6 +58,17 @@ flex-wrap: wrap;
   width: 346px;
 }
 
+#controls {
+  display: flex;
+  flex-direction: row;
+  width: 350px;
+  justify-content: space-between;
+}
+
+#controls > button {
+  width: 100px;
+}
+
 .scoring {
   display: grid;
   grid-template-columns: 90px 40px;
