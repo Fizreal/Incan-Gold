@@ -1,0 +1,95 @@
+/*-------------------------------- Constants --------------------------------*/
+​
+// 4) Define the required constants:
+  // 4.1) Define the 30 cards in the standard deck
+​
+/*---------------------------- Variables (state) ----------------------------*/
+​
+// Step 1 - Define the required variables used to track the state of the game
+// let round // Round number
+// let winner // Game winner
+// let playerTotal // Players total score
+// let computerTotal // Computers total score
+// let playerRound // Players current score for the round
+// let computerRound // Computers current score for the round
+// let remainingTreasure // Any remainder that wasn't able to be split between the players
+
+// let playerRan // Has the player left the temple
+// let computerRan // Has the computer left the temple
+// let templeCollapse // Has the temple collapsed
+
+// let deck // The deck that will be used for the round
+// let playedCards // Cards that have already been played from the deck
+​
+/*------------------------ Cached Element References ------------------------*/
+​
+// Step 2 - Store cached element references
+​
+// 2a) In a constant called 'choices', store the two divs the player clicks on too either continue or run
+​
+// 2b) In a constant called `messageEl`, store the element that displays descision of both players above the event
+
+// 2c) In a constant called `currentEventEl`, store the element that displays the icon for the current event
+
+// 2d) In a constant called `previousEventsEl`, store the element that displays the icons that have come up this round
+
+// 2e) In a constant called `eventMessageEl`, store the element that displays the description of the current event
+
+// 2e) In a constant called `initRound`, store the button element that will run the roundInit function
+​
+/*-------------------------------- Functions --------------------------------*/
+​
+// Step 3 - Upon loading, certain non-round variables should be initialized (round, playerTotal, computer total, winner)
+// 3b) Call this `init` function when the app loads.
+​
+// 3a) Create a function called `init`.
+  // 3a1) round = 0
+  // 3a1) winner = null
+  // 3a1) playerTotal = 0
+  // 3a1) RcomputerTotal = 0
+
+// 3c) Create a deckInit function to create and return a shuffled deck of 30 cards
+
+// 3d) Create a roundInit function to reset round variables at the start of each new round (playerRound, computerRound, remainingTreasure, playerRan, )
+  // 3d1) round += 1
+  // 3d2) playerRound = 0
+  // 3d3) computerRound = 0
+  // 3d4) playerRan = false
+  // 3d5) computerRan = false
+  // 3d6) templeCollapse = false
+  // 3d7) deck = deckInit()
+  // 3d7) playedCards = []
+  // 3d9) Call a rednder function to populate and necessary values and objects on the page
+​
+// Step 4 - Create game functions
+​
+// 4a) Create a function called `render`.
+  // 4a1) Render the messageEl
+  // 4a2) Render the current event and description if applicable
+  ​// 4a3) Render the previousEvents with the addition of the previous event
+  ​// 4a4) Render the updated scoreboards based on the previous event
+  ​// 4a5) Render the players choices, if applicable
+  ​// 4a6) Render the initRound button, if the previous event ended the round
+ 
+// 4b) Create an event function, returns a card from the deck for the new event
+
+// 4c) Create a divideTreasurefunction that divides the value of a treasure card evenly between any players in the temple and add's it to their round score, the remainder (if any) will be added to remainingTreasure
+
+// 4d) Create a function that checks if the latest card causes the temple to collapse, updates the templeCollapse variable and sets the round score values = 0 and renders a message of the remaining player(s) fleeing the temple
+
+// 4e) Create a function that takes the new event card, checks if the temple collapsed, if not and the event was a treasure card call the divideTreasure function
+
+//4f) Create a checkRan function that checks if any players chose to run, if only one ran they collect the remainingTreasure, for any players that did run add their round score to their total score and update their round score to 0
+
+//4g) Create a function that returns the computer players move based on the current game state
+  //4g1) Create an async function that returns the computer players move, calls the checkRan function and if necessary calls the next event checks the event type and calls the appropriate hazard or treasure functions, and calls render
+
+//4h) Create a function that returns input of the human players move, calls the computerMove function if the computer is still playing, call the checkRan function (if necessary) and calls the next event (if necessary), checks the event type and calls the appropriate hazard or treasure functions, and calls render
+
+//4i) Create a checkWinner function, that runs once the 5th round is finsihed to compare the final total scores for each player
+​
+/*----------------------------- Event Listeners -----------------------------*/
+​//6) Add event listners
+  //6a) Attach an event listener to the choices elements, on click, to call the playerMove function
+  //6a) Attach an event listener to the initRound element, on click, to call the initRound function
+  //6a) Attach an event listener to the playAgain element, on click, to call the init function
