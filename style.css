@@ -54,19 +54,34 @@ flex-wrap: wrap;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  background-color: brown;
   width: 346px;
+  height: 30px;
+}
+
+#playerChoices > div {
+  background-color: brown;
+  border: 1px solid black;
+}
+#playerChoices > div:hover {
+  background-color: green;
+  border: 1px solid black;
 }
 
 #controls {
   display: flex;
-  flex-direction: row;
+  flex-flow: row wrap;
   width: 350px;
-  justify-content: space-between;
+  justify-content: center;
 }
 
-#controls > button {
+button {
   width: 100px;
+}
+
+#gameEnded {
+  display: flex;
+  width: 350px;
+  justify-content: space-between;
 }
 
 .scoring {
@@ -80,10 +95,10 @@ flex-wrap: wrap;
 .scoring > * {
   border: 1px solid black;
   margin: 0;
+  text-align: center;
 }
 
 .name {
   grid-column-start: span 2;
-  text-align: center;
 }
 
