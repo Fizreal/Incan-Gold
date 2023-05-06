@@ -1,11 +1,26 @@
 /*----- constants -----*/
-const eventImgs = {
-  Treasure: '<img src="imgs/treasure.png" alt="Treasure">',
-  Mummy: '<img src="imgs/mummy.png" alt="Mummy">',
-  Snake: '<img src="imgs/snake.png" alt="Snake">',
-  Spider: '<img src="imgs/spider.png" alt="Spider">',
-  Rockfall: '<img src="imgs/rockfall.png" alt="Rockfall">',
-  Fire: '<img src="imgs/fire.png" alt="Fire">'
+const eventObjects = {
+  Treasure: { img: '<img src="imgs/treasure.png" alt="Treasure">' },
+  Mummy: {
+    img: '<img src="imgs/mummy.png" alt="Mummy">',
+    desc: '...there is a dragging sounds and a loud groan as a mummy limps out of the darkness!'
+  },
+  Snake: {
+    img: '<img src="imgs/snake.png" alt="Snake">',
+    desc: '...there is a rattling and a hiss before a snake lunges out from behind a rock!'
+  },
+  Spider: {
+    img: '<img src="imgs/spider.png" alt="Spider">',
+    desc: '...the room is filled with cobwebs when suddenly hundreds of spiders begin descending from the ceiling!'
+  },
+  Rockfall: {
+    img: '<img src="imgs/rockfall.png" alt="Rockfall">',
+    desc: '...a lone rock falls to the floor, before suddenly huge rocks begin crashing all around!'
+  },
+  Fire: {
+    img: '<img src="imgs/fire.png" alt="Fire">',
+    desc: '...the flame from your tortch ignates a methane deposit, causing fire to shoot up from the ground!'
+  }
 }
 const cards = [
   'Treasure: 1',
@@ -38,14 +53,14 @@ const cards = [
   'Hazard: Spider',
   'Hazard: Rockfall',
   'Hazard: Fire'
-] //update to create using a card class
+] //update to create using a card class?
 
 /*----- state variables -----*/
 let round // Round number
 let winner // Game winner
-let player // Object with the players total & round scores
-let computer // Object with the computer total & round scores
-let remainingTreasure // Any remainder that wasn't able to be split between the players
+let player
+let computer
+let remainingTreasure
 
 let playerRan // Has the player left the temple
 let computerRan // Has the computer left the temple
@@ -73,7 +88,7 @@ const startRound = document.querySelector('#startRound')
 const homePage = document.querySelector('#homePage')
 
 /*----- functions -----*/
-const renderEvent = () => {}
+const renderMessage = () => {}
 
 const renderScore = () => {
   playerTotalEl.innerText = player.totalScore
@@ -83,10 +98,11 @@ const renderScore = () => {
 }
 
 const renderControls = () => {
-  playerChoices.style.visibility = !playerRan ? 'initial' : 'hidden'
-  startGame.style.visibility = gameEnded ? 'initial' : 'hidden' //won't reappear
-  startRound.style.visibility = roundEnded ? 'initial' : 'hidden' //won't reappear
-  homePage.style.visibility = gameEnded ? 'initial' : 'hidden' //won't reappear
+  playerChoices.style.visibility =
+    playerRan || roundEnded ? 'hidden' : 'initial'
+  startGame.style.visibility = gameEnded ? 'initial' : 'hidden'
+  startRound.style.visibility = roundEnded && !gameEnded ? 'initial' : 'hidden'
+  homePage.style.visibility = gameEnded ? 'initial' : 'hidden'
 }
 
 const render = () => {
@@ -95,7 +111,7 @@ const render = () => {
 }
 
 const init = () => {
-  round = 1
+  round = 0
   winner = null
   gameEnded = false
   playerRan = false
@@ -136,6 +152,7 @@ const initRound = () => {
   playedCards = []
   currentEvent = null
   priorEventsEl.innerHTML = 'Prior events:'
+  messageEl.innerText = 'You both enter the ancient temple...'
   runEvent()
   render()
 }
@@ -148,13 +165,23 @@ const eventType = (event) => {
   }
 }
 
+//This needs to be the delayed function
 const newEvent = () => {
   if (currentEvent) {
-    priorEventsEl.innerHTML += eventImgs[eventType(currentEvent)]
+    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
   }
   currentEvent = deck.pop()
   playedCards.push(currentEvent)
-  currentEventEl.innerHTML = eventImgs[eventType(currentEvent)]
+  let newEvent = eventType(currentEvent)
+  currentEventEl.innerHTML = eventObjects[newEvent].img
+  if (newEvent === 'Treasure') {
+    let value = currentEvent.split(' ')[1]
+    eventMessageEl.innerText = `...and find ${value} treasure${
+      value > 1 ? "'s" : ''
+    }`
+  } else {
+    eventMessageEl.innerText = eventObjects[newEvent].desc
+  }
 }
 
 const divideTreasure = () => {
@@ -214,12 +241,12 @@ const checkWinner = () => {
   }
 }
 
-//This may be counting wrong
 const gameStatus = () => {
   if (!roundEnded) {
     roundEnded = playerRan && computerRan ? true : false
   }
-  gameEnded = roundEnded && round > 5 ? true : false
+  gameEnded = roundEnded && round === 5 ? true : false
+  if (gameEnded) checkWinner()
 }
 
 const collapseProbability = () => {
@@ -230,18 +257,57 @@ const collapseProbability = () => {
   return (hazards * 2) / deck.length
 }
 
-const computerDescision = () => {}
+//Overhaul functions estimating if the player will run, and the expected value of continuing
+const playerRunExpectation = () => {
+  if (playerRan) return 1
+  return 0.5
+}
+
+const computerDescisionSync = () => {
+  let outcomesContinue = []
+
+  cards.forEach((card) => {
+    if (card.includes('Treasure')) {
+      let value = +card.split(' ')[1]
+      let expectedValue =
+        value * playerRunExpectation() +
+        Math.floor(value / 2) * (1 - playerRunExpectation())
+      outcomesContinue.push(expectedValue)
+    } else if (playedCards.includes(card)) {
+      outcomesContinue.push(-computer.roundScore)
+    }
+  })
+  let continueEV = outcomesContinue.reduce((acc, outcome) => acc + outcome, 0)
+  return continueEV >= 0 ? 'continue' : 'run'
+}
+
+const computerDescisionAsync = () => {
+  while (!computerRan && !roundEnded) {
+    let computerMove = computerDescisionSync()
+    scoreRound(null, computerMove)
+    console.log(computerRan)
+    if (!computerRan) {
+      runEvent()
+    }
+    gameStatus()
+    console.log(roundEnded)
+    render()
+  }
+}
 
 const handleDescision = (e) => {
   if (e.target.tagName !== 'DIV') return
 
   let playerMove = e.target.className
-  let computerMove = computerRan ? null : computerDescision()
+  let computerMove = computerRan ? null : computerDescisionSync()
 
   scoreRound(playerMove, computerMove)
-  runEvent()
+  if (!playerRan || !computerRan) runEvent()
   gameStatus()
   render()
+  if (playerRan && !computerRan && !roundEnded) {
+    computerDescisionAsync()
+  }
 }
 
 /*----- event listeners -----*/
