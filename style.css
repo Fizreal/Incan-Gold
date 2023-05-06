@@ -35,15 +35,27 @@ flex-wrap: wrap;
 #previousEvents {
   flex-flow: row wrap;
   justify-content: left;
+  align-items: center;
   width: 346px;
+  height: 30px;
+}
+
+#previousEvents > img {
+  height: 20px;
+  width: 20px;
 }
 
 #event {
   display: flex;
   flex-direction: column;
   border: 1px solid black;
-  height: 175px;
+  height: 200px;
   justify-content: space-between;
+}
+
+#currentEvent > img {
+  height: 60px;
+  width: 60px;
 }
 
 #event > * {
@@ -71,22 +83,16 @@ flex-wrap: wrap;
   display: flex;
   flex-flow: row wrap;
   width: 350px;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 button {
   width: 100px;
 }
 
-#gameEnded {
-  display: flex;
-  width: 350px;
-  justify-content: space-between;
-}
-
 .scoring {
   display: grid;
-  grid-template-columns: 90px 40px;
+  grid-template-columns: 95px 40px;
   grid-template-rows: 30px 25px 25px;
   border: 1px solid black;
   margin: 20px;

@@ -1,11 +1,11 @@
 /*----- constants -----*/
 const eventImgs = {
-  treasure: '',
-  mummy: '',
-  snakes: '',
-  spiders: '',
-  rockfall: '',
-  fire: ''
+  Treasure: '<img src="imgs/treasure.png" alt="Treasure">',
+  Mummy: '<img src="imgs/mummy.png" alt="Mummy">',
+  Snake: '<img src="imgs/snake.png" alt="Snake">',
+  Spider: '<img src="imgs/spider.png" alt="Spider">',
+  Rockfall: '<img src="imgs/rockfall.png" alt="Rockfall">',
+  Fire: '<img src="imgs/fire.png" alt="Fire">'
 }
 const cards = [
   'Treasure: 1',
@@ -49,12 +49,13 @@ let remainingTreasure // Any remainder that wasn't able to be split between the 
 
 let playerRan // Has the player left the temple
 let computerRan // Has the computer left the temple
-let templeCollapse // Has the temple collapsed
-let roundEnded
+
+let roundEnded //redundant with temple collapse, can just check update directly if templeCollapse is true
 let gameEnded
 
 let deck // The deck that will be used for the round
 let playedCards // Cards that have already been played from the deck
+let currentEvent
 
 /*----- cached elements  -----*/
 
@@ -67,7 +68,9 @@ const playerTotalEl = document.querySelector('#playerTotal')
 const playerRoundEl = document.querySelector('#playerRound')
 const computerTotalEl = document.querySelector('#computerTotal')
 const computerRoundEl = document.querySelector('#computerRound')
-const startGameEls = document.querySelector('#gameEnded')
+const startGame = document.querySelector('#startGame')
+const startRound = document.querySelector('#startRound')
+const homePage = document.querySelector('#homePage')
 
 /*----- functions -----*/
 const renderEvent = () => {}
@@ -80,16 +83,14 @@ const renderScore = () => {
 }
 
 const renderControls = () => {
-  playerChoices.style.visibility = !playerRan ? 'visibile' : 'invisible'
-  document.querySelector('#startRound').style.visibility = roundEnded
-    ? 'visibile'
-    : 'invisible'
-  startGameEls.style.visibility = gameEnded ? 'visibile' : 'invisible'
+  playerChoices.style.visibility = !playerRan ? 'initial' : 'hidden'
+  startGame.style.visibility = gameEnded ? 'initial' : 'hidden' //won't reappear
+  startRound.style.visibility = roundEnded ? 'initial' : 'hidden' //won't reappear
+  homePage.style.visibility = gameEnded ? 'initial' : 'hidden' //won't reappear
 }
 
 const render = () => {
   renderScore()
-  renderEvent()
   renderControls()
 }
 
@@ -99,7 +100,6 @@ const init = () => {
   gameEnded = false
   playerRan = false
   computerRan = false
-  templeCollapse = false
   roundEnded = true
   player = {
     totalScore: 0,
@@ -112,15 +112,15 @@ const init = () => {
   render()
 }
 
-//Shuffle alorithm
-const deckInit = (cards) => {
-  let roundDeck = [] //get the card values into this arr
+//Shuffle alorithm: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+const deckInit = () => {
+  let roundDeck = [...cards]
 
   for (let i = roundDeck.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1))
     ;[roundDeck[i], roundDeck[j]] = [roundDeck[j], roundDeck[i]]
   }
-  console.log(roundDeck)
+  return roundDeck
 }
 
 const initRound = () => {
@@ -135,8 +135,77 @@ const initRound = () => {
 
   deck = deckInit()
   playedCards = []
+  currentEvent = null
+  runEvent()
   render()
 }
 
+const eventType = (event) => {
+  if (event.includes('Treasure')) {
+    return 'Treasure'
+  } else {
+    return event.split(' ')[1]
+  }
+}
+
+const newEvent = () => {
+  if (currentEvent) {
+    priorEventsEl.innerHTML += eventImgs[eventType(currentEvent)]
+  }
+  currentEvent = deck.pop()
+  playedCards.push(currentEvent)
+  currentEventEl.innerHTML = eventImgs[eventType(currentEvent)]
+}
+
+const divideTreasure = () => {
+  let value = +currentEvent.split(' ')[1]
+  if (!playerRan && !computerRan) {
+    player.roundScore += Math.floor(value / 2)
+    computer.roundScore += Math.floor(value / 2)
+    remainingTreasure += value % 2
+  } else if (!playerRan) {
+    player.roundScore += value
+  } else {
+    computer.roundScore += value
+  }
+}
+
+const checkForCollapse = () => {
+  if (playedCards.slice(0, playedCards.length - 1).includes(currentEvent)) {
+    roundEnded = true
+    player.roundScore = 0
+    computer.roundScore = 0
+  }
+}
+
+const runEvent = () => {
+  newEvent()
+  if (currentEvent.includes('Treasure')) {
+    divideTreasure()
+  } else {
+    checkForCollapse()
+  }
+}
+
+const scoreRound = () => {
+  //checks which players, if any, chose to run
+  //if a single player ran they collect the remainingTreasure
+  //add their round score to the total score and 0 out the round score
+}
+
+const collapseProbability = () => {}
+
+const computerDescision = () => {}
+
+const handleDescision = (e) => {
+  if (e.target.tagName !== 'DIV') return
+
+  let playerMove = e.target.className
+  let computerMove = computerDescision()
+}
+
 /*----- event listeners -----*/
+
+playerChoices.addEventListener('click', handleDescision)
+
 init()
