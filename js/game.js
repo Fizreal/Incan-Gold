@@ -130,12 +130,12 @@ const initRound = () => {
   remainingTreasure = 0
   playerRan = false
   computerRan = false
-  templeCollapse = false
   roundEnded = false
 
   deck = deckInit()
   playedCards = []
   currentEvent = null
+  priorEventsEl.innerHTML = 'Prior events:'
   runEvent()
   render()
 }
@@ -187,13 +187,48 @@ const runEvent = () => {
   }
 }
 
-const scoreRound = () => {
-  //checks which players, if any, chose to run
-  //if a single player ran they collect the remainingTreasure
-  //add their round score to the total score and 0 out the round score
+//Rename this function
+const scoreRound = (pMove, cMove) => {
+  if (pMove === 'run' && cMove === 'run') {
+    remainingTreasure = 0
+  }
+  if (pMove === 'run') {
+    player.totalScore += player.roundScore + remainingTreasure
+    player.roundScore = 0
+    remainingTreasure = 0
+    playerRan = true
+  }
+  if (cMove === 'run') {
+    computer.totalScore += computer.roundScore
+    computer.roundScore = 0
+    remainingTreasure = 0
+    computerRan = true
+  }
 }
 
-const collapseProbability = () => {}
+const checkWinner = () => {
+  if (player.totalScore === computer.totalScore) {
+    winner = 'tie'
+  } else {
+    winner = player.totalScore > computer.totalScore ? 'player' : 'computer'
+  }
+}
+
+//This may be counting wrong
+const gameStatus = () => {
+  if (!roundEnded) {
+    roundEnded = playerRan && computerRan ? true : false
+  }
+  gameEnded = roundEnded && round > 5 ? true : false
+}
+
+const collapseProbability = () => {
+  let hazards = 0
+  playedCards.forEach((card) => {
+    if (card.includes('Hazard')) hazards += 1
+  })
+  return (hazards * 2) / deck.length
+}
 
 const computerDescision = () => {}
 
@@ -201,11 +236,22 @@ const handleDescision = (e) => {
   if (e.target.tagName !== 'DIV') return
 
   let playerMove = e.target.className
-  let computerMove = computerDescision()
+  let computerMove = computerRan ? null : computerDescision()
+
+  scoreRound(playerMove, computerMove)
+  runEvent()
+  gameStatus()
+  render()
 }
 
 /*----- event listeners -----*/
 
 playerChoices.addEventListener('click', handleDescision)
+
+startRound.addEventListener('click', initRound)
+startGame.addEventListener('click', init)
+homePage.addEventListener('click', () => {
+  location.href = '/index.html'
+})
 
 init()

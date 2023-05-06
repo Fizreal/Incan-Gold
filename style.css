@@ -108,3 +108,52 @@ button {
   grid-column-start: span 2;
 }
 
+/* What variables need to be updated with @media
+
+//Text sizing for almost every element
+
+header {
+  height: 30px;
+}
+
+#gameArea {
+  height: 350px;
+  width: 350px;
+  margin: 10px;
+}
+
+#previousEvents {
+  width: 346px;
+  height: 30px;
+}
+
+#previousEvents > img {
+  height: 20px;
+  width: 20px;
+}
+
+#event {
+  height: 200px;
+}
+
+#currentEvent > img {
+  height: 60px;
+  width: 60px;
+}
+
+//The playerChoice divs once I add sizing to them
+
+#controls {
+  width: 350px;
+}
+
+button {
+  width: 100px;
+}
+
+.scoring {
+  grid-template-columns: 95px 40px;
+  grid-template-rows: 30px 25px 25px;
+  margin: 20px;
+}
+*/
