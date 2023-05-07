@@ -108,6 +108,7 @@ const renderElements = () => {
     !roundEnded && playedCards.length > 1 ? 'initial' : 'hidden'
   currentEventEl.style.visibility = roundEnded ? 'hidden' : 'initial'
   eventMessageEl.style.visibility = roundEnded ? 'hidden' : 'initial'
+  messageEl.style.color = roundEnded ? 'black' : 'rgba(245, 245, 245, 0.6)'
 
   //How could I use DRY here?
   remainingTreasureDisplay.style.visibility =

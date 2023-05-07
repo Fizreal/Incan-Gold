@@ -5,8 +5,9 @@
 body {
   margin: 0;
   height: 100vh;
-  background-image: url('/imgs/Background-mobile.jpg');
+  background-image: url('/imgs/Background.jpg');
   background-size: cover;
+  background-position: center;
   background-repeat: no-repeat;
 }
 
@@ -48,10 +49,16 @@ header > h1 {
   justify-content: space-between;
   align-items: center;
   border: 2px solid black;
-  height: 350px;
+  height: 400px;
   width: 350px;
   margin: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 8px;
   color: rgba(245, 245, 245, 0.6);
+}
+
+.exteriorMessage {
+  color: black;
 }
 
 .outsideTemple {
@@ -65,6 +72,7 @@ header > h1 {
   background-repeat: no-repeat;
 }
 
+/* Resize and wrap background if the events run over */
 #previousEvents {
   display: flex;
   flex-flow: row wrap;
@@ -72,51 +80,71 @@ header > h1 {
   align-items: center;
   width: 346px;
   height: 30px;
+  padding: 0px 4px 0px 4px;
   background: rgb(128,128,128,0.5)
 }
 
 #previousEvents > img {
   height: 20px;
   width: 20px;
+  padding: 0px 1px 0px 1px;
 }
 
 #event {
   display: flex;
   flex-direction: column;
-  /* border: 1px solid black; */
   height: 250px;
   justify-content: space-between;
 }
 
 #currentEvent > img {
-  height: 60px;
-  width: 60px;
+  height: 80px;
+  width: 80px;
 }
 
 #event > * {
   text-align: center;
 }
 
-#gameElements > * {
-  margin: 0;
-  height: 20px;
+#gameElements {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 40px;
 }
 
 #playerChoices {
   display: flex;
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: space-around;
+  align-items: center;
   width: 346px;
   height: 30px;
+  margin-top: 10px;
 }
 
 #playerChoices > div {
-  background-color: brown;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 75px;
+  height: 25px;
   border: 1px solid black;
+  border-radius: 15%;
 }
-#playerChoices > div:hover {
-  background-color: green;
-  border: 1px solid black;
+
+.continue {
+  background-color: rgba(63, 177, 113, 0.5);
+}
+.continue:hover {
+  background-color: rgba(63, 177, 113);
+}
+.run {
+  background-color: rgba(255, 67, 77, 0.5);
+}
+.run:hover {
+  background-color: rgba(255, 67, 77);
 }
 
 #controls {
@@ -170,69 +198,140 @@ button {
 }
 
 @media only screen and (min-width: 481px) {
+  #gameArea {
+    border: 2px solid black;
+    height: 450px;
+    width: 450px;
+    margin: 15px;
+    font-size: 10px;
+  }
   
+  #previousEvents {
+    width: 446px;
+    height: 40px;
+    padding: 0px 4px 0px 4px;
+  }
+  
+  #previousEvents > img {
+    height: 25px;
+    width: 25px;
+    padding: 0px 1px 0px 1px;
+  }
+  
+  #event {
+    height: 300px;
+  }
+  
+  #currentEvent > img {
+    height: 90px;
+    width: 90px;
+  }
+  
+  #gameElements {
+    height: 60px;
+  }
+  
+  #playerChoices {
+    width: 446px;
+    height: 30px;
+    margin-top: 10px;
+  }
+  
+  #playerChoices > div {
+    width: 75px;
+    height: 25px;
+    border: 1px solid black;
+  }
+  
+  #controls {
+    width: 450px;
+  }
+  
+  button {
+    width: 125px;
+    height: 30px;
+  }
+  #startRound {
+    width: 175px;
+  }
+  
+  .scoring {
+    grid-template-columns: 125px 50px;
+    grid-template-rows: 35px 30px 30px;
+    border: 1px solid black;
+    margin: 25px;
+    font-size: 20px;
+  }
 }
 @media only screen and (min-width: 769px) {
-
+  #gameArea {
+    border: 4px solid black;
+    height: 550px;
+    width: 550px;
+    margin: 15px;
+    font-size: 12px;
+  }
+  
+  #previousEvents {
+    width: 542px;
+    height: 45px;
+    padding: 0px 4px 0px 4px;
+  }
+  
+  #previousEvents > img {
+    height: 30px;
+    width: 30px;
+    padding: 0px 2px 0px 2px;
+  }
+  
+  #event {
+    height: 350px;
+    margin-bottom: 20px;
+  }
+  
+  #currentEvent > img {
+    height: 120px;
+    width: 120px;
+  }
+  
+  #gameElements {
+    height: 70px;
+  }
+  
+  #playerChoices {
+    width: 446px;
+    height: 30px;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  
+  #playerChoices > div {
+    width: 90px;
+    height: 30px;
+    border: 1px solid black;
+  }
+  
+  #controls {
+    width: 550px;
+  }
+  
+  button {
+    width: 175px;
+    height: 40px;
+  }
+  #startRound {
+    width: 200px;
+  }
+  
+  .scoring {
+    grid-template-columns: 150px 65px;
+    grid-template-rows: 35px 30px 30px;
+    border: 1px solid black;
+    margin: 30px;
+    font-size: 20px;
+  }
 }
+
 @media only screen and (min-width: 1025px) {
 
 }
-
-
-
-/* What variables need to be updated with @media
-
-//Text sizing for almost every element
-
-header {
-  height: 30px;
-}
-
-#gameState {
-  width: 350px;
-  height: 25px;
-  margin-bottom: 10px;
-}
-
-#gameArea {
-  height: 350px;
-  width: 350px;
-  margin: 10px;
-}
-
-#previousEvents {
-  width: 346px;
-  height: 30px;
-}
-
-#previousEvents > img {
-  height: 20px;
-  width: 20px;
-}
-
-#event {
-  height: 200px;
-}
-
-#currentEvent > img {
-  height: 60px;
-  width: 60px;
-}
-
-//The playerChoice divs once I add sizing to them
-
-#controls {
-  width: 350px;
-}
-
-button {
-  width: 100px;
-}
-
-.scoring {
-  grid-template-columns: 95px 40px;
-  grid-template-rows: 30px 25px 25px;
-  margin: 20px;
-}
-*/
