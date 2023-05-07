@@ -21,6 +21,13 @@ justify-content: center;
 flex-wrap: wrap;
 }
 
+#gameState {
+  width: 350px;
+  height: 25px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
 #gameArea {
   display: flex;
   flex-direction: column;
@@ -49,7 +56,7 @@ flex-wrap: wrap;
   display: flex;
   flex-direction: column;
   border: 1px solid black;
-  height: 200px;
+  height: 250px;
   justify-content: space-between;
 }
 
@@ -89,6 +96,9 @@ flex-wrap: wrap;
 button {
   width: 100px;
 }
+#startRound {
+  width: 150px;
+}
 
 .scoring {
   display: grid;
@@ -114,6 +124,12 @@ button {
 
 header {
   height: 30px;
+}
+
+#gameState {
+  width: 350px;
+  height: 25px;
+  margin-bottom: 10px;
 }
 
 #gameArea {

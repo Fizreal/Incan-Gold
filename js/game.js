@@ -3,7 +3,7 @@ const eventObjects = {
   Treasure: { img: '<img src="imgs/treasure.png" alt="Treasure">' },
   Mummy: {
     img: '<img src="imgs/mummy.png" alt="Mummy">',
-    desc: '...there is a dragging sounds and a loud groan as a mummy limps out of the darkness!'
+    desc: '...there is a dragging sound and a loud groan as a mummy limps out of the darkness!'
   },
   Snake: {
     img: '<img src="imgs/snake.png" alt="Snake">',
@@ -55,28 +55,35 @@ const cards = [
   'Hazard: Fire'
 ] //update to create using a card class?
 
+const winnerMessages = {
+  tie: 'Tie game, well played!',
+  player: "Congratulations, you've won!",
+  computer: 'Dr. Jones won, nice try.'
+}
+
 /*----- state variables -----*/
-let round // Round number
-let winner // Game winner
+let round
+let winner
 let player
 let computer
 let remainingTreasure
 
-let playerRan // Has the player left the temple
-let computerRan // Has the computer left the temple
+let playerRan
+let computerRan
 
-let roundEnded //redundant with temple collapse, can just check update directly if templeCollapse is true
+let roundEnded
 let gameEnded
 
-let deck // The deck that will be used for the round
-let playedCards // Cards that have already been played from the deck
+let deck
+let playedCards
 let currentEvent
 
 /*----- cached elements  -----*/
 
 const playerChoices = document.querySelector('#playerChoices')
-const messageEl = document.querySelector('#statusMessage') //who is continuing
-const eventMessageEl = document.querySelector('#eventDescription') //description of current event
+const gameState = document.querySelector('#gameState')
+const messageEl = document.querySelector('#statusMessage')
+const eventMessageEl = document.querySelector('#eventDescription')
 const currentEventEl = document.querySelector('#currentEvent')
 const priorEventsEl = document.querySelector('#previousEvents')
 const playerTotalEl = document.querySelector('#playerTotal')
@@ -125,6 +132,8 @@ const init = () => {
     totalScore: 0,
     roundScore: 0
   }
+  //zero out prior rounds events & messages
+
   render()
 }
 
@@ -139,7 +148,9 @@ const deckInit = () => {
   return roundDeck
 }
 
-const initRound = () => {
+//how is the runEvent function running here?
+const initRound = async () => {
+  startRound.style.visibility = 'hidden'
   round += 1
   player.roundScore = 0
   computer.roundScore = 0
@@ -151,10 +162,46 @@ const initRound = () => {
   deck = deckInit()
   playedCards = []
   currentEvent = null
+  gameState.innerText = `Round ${round}/5`
   priorEventsEl.innerHTML = 'Prior events:'
   messageEl.innerText = 'You both enter the ancient temple...'
-  runEvent()
+  await runEvent()
   render()
+}
+
+//There has got to be a better way to do this
+//Plus rename
+const updateMessage = (playerMove, computerMove, delay = 1000) => {
+  if (currentEvent) {
+    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
+    currentEventEl.innerHTML = ''
+  }
+  eventMessageEl.innerText = ''
+
+  if (playerMove && computerMove && !playerRan && !computerRan) {
+    messageEl.innerText = 'You both descend further into the temple...'
+  } else if (playerMove && computerMove && playerRan && computerRan) {
+    messageEl.innerText = 'You both return to the surface...'
+  } else if (playerMove && computerMove && !playerRan && computerRan) {
+    messageEl.innerText =
+      'You continue further while Dr. Jones returns to the surface...'
+  } else if (playerMove && computerMove && playerRan && !computerRan) {
+    messageEl.innerText =
+      'You return to the surface while Dr. Jones continues alone...'
+  } else if (playerMove && !playerRan) {
+    messageEl.innerText = 'You continue further into the temple...'
+  } else if (playerMove && playerRan) {
+    messageEl.innerText = 'You return to the surface...'
+  } else if (computerMove && !computerRan) {
+    messageEl.innerText = 'Dr. Jones continue further into the temple...'
+  } else if (computerMove && computerRan) {
+    messageEl.innerText = 'Dr. Jones return to the surface...'
+  }
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, delay)
+  })
 }
 
 const eventType = (event) => {
@@ -167,9 +214,6 @@ const eventType = (event) => {
 
 //This needs to be the delayed function
 const newEvent = () => {
-  if (currentEvent) {
-    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
-  }
   currentEvent = deck.pop()
   playedCards.push(currentEvent)
   let newEvent = eventType(currentEvent)
@@ -202,6 +246,10 @@ const checkForCollapse = () => {
     roundEnded = true
     player.roundScore = 0
     computer.roundScore = 0
+
+    //collapse message
+    //move to a new element so the items don't move around in the gameArea
+    eventMessageEl.innerHTML += '<br><br><b>The temple begins to collapse<b>'
   }
 }
 
@@ -239,6 +287,7 @@ const checkWinner = () => {
   } else {
     winner = player.totalScore > computer.totalScore ? 'player' : 'computer'
   }
+  gameState.innerText = winnerMessages[winner]
 }
 
 const gameStatus = () => {
@@ -263,7 +312,7 @@ const playerRunExpectation = () => {
   return 0.5
 }
 
-const computerDescisionSync = () => {
+const computerDescisionSync = (delay = 0) => {
   let outcomesContinue = []
 
   cards.forEach((card) => {
@@ -278,30 +327,36 @@ const computerDescisionSync = () => {
     }
   })
   let continueEV = outcomesContinue.reduce((acc, outcome) => acc + outcome, 0)
-  return continueEV >= 0 ? 'continue' : 'run'
+  let descision = continueEV >= 0 ? 'continue' : 'run'
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve(descision)
+    }, delay)
+  })
 }
 
-const computerDescisionAsync = () => {
+const computerDescisionAsync = async () => {
   while (!computerRan && !roundEnded) {
-    let computerMove = computerDescisionSync()
+    let computerMove = await computerDescisionSync(1500)
     scoreRound(null, computerMove)
-    console.log(computerRan)
-    if (!computerRan) {
-      runEvent()
-    }
+    await updateMessage(null, computerMove, 1500)
+    if (!computerRan) runEvent()
     gameStatus()
-    console.log(roundEnded)
     render()
   }
 }
 
-const handleDescision = (e) => {
+const handleDescision = async (e) => {
   if (e.target.tagName !== 'DIV') return
 
+  playerChoices.style.visibility = 'hidden'
+
   let playerMove = e.target.className
-  let computerMove = computerRan ? null : computerDescisionSync()
+  let computerMove = computerRan ? null : await computerDescisionSync()
 
   scoreRound(playerMove, computerMove)
+  await updateMessage(playerMove, computerMove)
+
   if (!playerRan || !computerRan) runEvent()
   gameStatus()
   render()
