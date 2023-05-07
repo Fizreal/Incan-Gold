@@ -71,6 +71,7 @@ let remainingTreasure
 let playerRan
 let computerRan
 
+let templeCollapse
 let roundEnded
 let gameEnded
 
@@ -79,7 +80,7 @@ let playedCards
 let currentEvent
 
 /*----- cached elements  -----*/
-
+//reorder these so they aren't just random
 const playerChoices = document.querySelector('#playerChoices')
 const gameState = document.querySelector('#gameState')
 const messageEl = document.querySelector('#statusMessage')
@@ -93,9 +94,28 @@ const computerRoundEl = document.querySelector('#computerRound')
 const startGame = document.querySelector('#startGame')
 const startRound = document.querySelector('#startRound')
 const homePage = document.querySelector('#homePage')
-
+const remainingTreasureDisplay = document.querySelector('#remainingTreasure')
+const collapseProbabilityDisplay = document.querySelector(
+  '#collapseProbability'
+)
 /*----- functions -----*/
-const renderMessage = () => {}
+
+const renderElements = () => {
+  document.querySelector('#gameArea').className = roundEnded
+    ? 'outsideTemple'
+    : 'insideTemple'
+  priorEventsEl.style.visibility =
+    !roundEnded && playedCards.length > 1 ? 'initial' : 'hidden'
+  currentEventEl.style.visibility = roundEnded ? 'hidden' : 'initial'
+  eventMessageEl.style.visibility = roundEnded ? 'hidden' : 'initial'
+
+  //How could I use DRY here?
+  remainingTreasureDisplay.style.visibility =
+    roundEnded && !templeCollapse ? 'hidden' : 'initial'
+  collapseProbabilityDisplay.style.visibility = roundEnded
+    ? 'hidden'
+    : 'initial'
+}
 
 const renderScore = () => {
   playerTotalEl.innerText = player.totalScore
@@ -113,6 +133,7 @@ const renderControls = () => {
 }
 
 const render = () => {
+  renderElements()
   renderScore()
   renderControls()
 }
@@ -149,6 +170,7 @@ const deckInit = () => {
 }
 
 //how is the runEvent function running here?
+//Add await to the message el
 const initRound = async () => {
   startRound.style.visibility = 'hidden'
   round += 1
@@ -158,14 +180,16 @@ const initRound = async () => {
   playerRan = false
   computerRan = false
   roundEnded = false
+  templeCollapse = false
 
   deck = deckInit()
   playedCards = []
   currentEvent = null
   gameState.innerText = `Round ${round}/5`
   priorEventsEl.innerHTML = 'Prior events:'
-  messageEl.innerText = 'You both enter the ancient temple...'
-  await runEvent()
+  remainingTreasureDisplay.style.visibility = 'hidden'
+  await updateMessage(null, null)
+  runEvent()
   render()
 }
 
@@ -196,6 +220,8 @@ const updateMessage = (playerMove, computerMove, delay = 1000) => {
     messageEl.innerText = 'Dr. Jones continue further into the temple...'
   } else if (computerMove && computerRan) {
     messageEl.innerText = 'Dr. Jones return to the surface...'
+  } else if (!playerMove && !computerMove) {
+    messageEl.innerText = 'You both enter the ancient temple...'
   }
   return new Promise((resolve) => {
     setTimeout(() => {
@@ -243,13 +269,30 @@ const divideTreasure = () => {
 
 const checkForCollapse = () => {
   if (playedCards.slice(0, playedCards.length - 1).includes(currentEvent)) {
+    templeCollapse = true
     roundEnded = true
     player.roundScore = 0
     computer.roundScore = 0
+  }
+}
 
-    //collapse message
-    //move to a new element so the items don't move around in the gameArea
-    eventMessageEl.innerHTML += '<br><br><b>The temple begins to collapse<b>'
+const collapseProbability = () => {
+  let hazards = 0
+  playedCards.forEach((card) => {
+    if (card.includes('Hazard')) hazards += 1
+  })
+  return (hazards * 2) / deck.length
+}
+
+const updateGameElements = () => {
+  if (roundEnded && (!playerRan || !computerRan)) {
+    remainingTreasureDisplay.innerHTML = '<b>The temple begins to collapse<b>'
+    collapseProbabilityDisplay.innerText = ''
+  } else {
+    remainingTreasureDisplay.innerHTML = `Remaining Treasure: ${remainingTreasure}`
+    collapseProbabilityDisplay.innerText = `Collapse Probability: ${Math.floor(
+      collapseProbability() * 100
+    )}%`
   }
 }
 
@@ -260,6 +303,7 @@ const runEvent = () => {
   } else {
     checkForCollapse()
   }
+  updateGameElements()
 }
 
 //Rename this function
@@ -298,14 +342,6 @@ const gameStatus = () => {
   if (gameEnded) checkWinner()
 }
 
-const collapseProbability = () => {
-  let hazards = 0
-  playedCards.forEach((card) => {
-    if (card.includes('Hazard')) hazards += 1
-  })
-  return (hazards * 2) / deck.length
-}
-
 //Overhaul functions estimating if the player will run, and the expected value of continuing
 const playerRunExpectation = () => {
   if (playerRan) return 1
@@ -338,6 +374,8 @@ const computerDescisionSync = (delay = 0) => {
 const computerDescisionAsync = async () => {
   while (!computerRan && !roundEnded) {
     let computerMove = await computerDescisionSync(1500)
+    remainingTreasureDisplay.style.visibility = 'hidden'
+    collapseProbabilityDisplay.style.visibility = 'hidden'
     scoreRound(null, computerMove)
     await updateMessage(null, computerMove, 1500)
     if (!computerRan) runEvent()
@@ -350,6 +388,8 @@ const handleDescision = async (e) => {
   if (e.target.tagName !== 'DIV') return
 
   playerChoices.style.visibility = 'hidden'
+  remainingTreasureDisplay.style.visibility = 'hidden'
+  collapseProbabilityDisplay.style.visibility = 'hidden'
 
   let playerMove = e.target.className
   let computerMove = computerRan ? null : await computerDescisionSync()

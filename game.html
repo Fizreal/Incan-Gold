@@ -8,46 +8,52 @@
   <title>Incan Gold</title>
   <link rel="stylesheet" href="style.css">
   <script defer src="/js/game.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu&display=swap" rel="stylesheet">
 </head>
 
 <body>
-  <header>Incan Gold Game</header>
+  <header>
+    <h1>Incan Gold</h1>
+  </header>
   <section id="game">
-    <h1 id="gameState"></h1>
-    <section id="gameArea">
-      <section id="previousEvents">
-        Prior events:
+    <h3 id="gameState">
+      </h1>
+      <section class="outsideTemple" id="gameArea">
+        <section id="previousEvents">
+        </section>
+        <section id="event">
+          <p id="statusMessage"></p>
+          <div id="currentEvent"></div>
+          <p id="eventDescription"></p>
+        </section>
+        <section id="gameElements">
+          <p id="remainingTreasure"></p>
+          <p id="collapseProbability"></p>
+        </section>
+        <section id="playerChoices">
+          <div class="continue">Cont?</div>
+          <div class="run">Run?</div>
+        </section>
       </section>
-      <section id="event">
-        <p id="statusMessage"></p>
-        <div id="currentEvent"></div>
-        <p id="eventDescription"></p>
+      <section id="buttons">
+        <button id="startGame">Play Again?</button>
+        <button id="startRound">Enter the temple</button>
+        <button id="homePage">Home</button>
       </section>
-      <section id="playerChoices">
-        <div class="continue">Cont?</div>
-        <div class="run">Run?</div>
+      <section class="scoring" id="player">
+        <h1 class="name">Player</h1>
+        <p class="scoreName">Total Score</p>
+        <p class="scoreValue" id="playerTotal"></p>
+        <p class="scoreName">Round Score</p>
+        <p class="scoreValue" id="playerRound"></p>
       </section>
-    </section>
-    <section>
-      <button id="startGame">Play Again?</button>
-      <button id="startRound">Enter the temple</button>
-      <button id="homePage">Home</button>
-    </section>
-    <section class="scoring" id="player">
-      <h1 class="name">Player</h1>
-      <p>Total Score</p>
-      <p id="playerTotal"></p>
-      <p>Round Score</p>
-      <p id="playerRound"></p>
-    </section>
-    <section class="scoring" id="computer">
-      <h1 class="name">Dr. Jones</h1>
-      <p>Total Score</p>
-      <p id="computerTotal"></p>
-      <p>Round Score</p>
-      <p id="computerRound"></p>
-    </section>
-
+      <section class="scoring" id="computer">
+        <h1 class="name">Dr. Jones</h1>
+        <p class="scoreName">Total Score</p>
+        <p class="scoreValue" id="computerTotal"></p>
+        <p class="scoreName">Round Score</p>
+        <p class="scoreValue" id="computerRound"></p>
+      </section>
   </section>
 </body>
 

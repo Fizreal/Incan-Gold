@@ -4,25 +4,39 @@
 
 body {
   margin: 0;
-  background-color: blueviolet;
+  height: 100vh;
+  background-image: url('/imgs/Background-mobile.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 
 header {
+  display: flex;
   width: 100%;
-  height: 30px;
-  background-color: aquamarine;
-  text-align: center;
+  height: 50px;
+  justify-content: center;
+  align-items: center;
+  background-color: #454545;
+  font-family: 'Ubuntu', sans-serif;
+  font-style: italic;
+}
+
+header > h1 {
+  margin: 0;
+  color: #FFA559;
+  text-shadow: -3px 3px black;
 }
 
 #game {
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+
 }
 
 #gameState {
-  width: 350px;
+  width: 100%;
   height: 25px;
   text-align: center;
   margin-bottom: 10px;
@@ -37,14 +51,28 @@ flex-wrap: wrap;
   height: 350px;
   width: 350px;
   margin: 10px;
+  color: rgba(245, 245, 245, 0.6);
+}
+
+.outsideTemple {
+  background-image: url('/imgs/outsideTemple.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.insideTemple {
+  background-image: url('/imgs/insideTemple.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 #previousEvents {
+  display: flex;
   flex-flow: row wrap;
   justify-content: left;
   align-items: center;
   width: 346px;
   height: 30px;
+  background: rgb(128,128,128,0.5)
 }
 
 #previousEvents > img {
@@ -55,7 +83,7 @@ flex-wrap: wrap;
 #event {
   display: flex;
   flex-direction: column;
-  border: 1px solid black;
+  /* border: 1px solid black; */
   height: 250px;
   justify-content: space-between;
 }
@@ -67,6 +95,11 @@ flex-wrap: wrap;
 
 #event > * {
   text-align: center;
+}
+
+#gameElements > * {
+  margin: 0;
+  height: 20px;
 }
 
 #playerChoices {
@@ -93,6 +126,12 @@ flex-wrap: wrap;
   justify-content: space-between;
 }
 
+#buttons {
+  display: flex;
+  width: 100%;
+  justify-content: center;
+}
+
 button {
   width: 100px;
 }
@@ -109,14 +148,38 @@ button {
 }
 
 .scoring > * {
+  display: flex;
+  justify-content: center;
+  align-items: center;
   border: 1px solid black;
   margin: 0;
-  text-align: center;
+  font-family: 'Ubuntu', sans-serif;
 }
 
 .name {
   grid-column-start: span 2;
+  background-color: #7C9070;
 }
+
+.scoreName {
+  background-color: #9CA777; 
+}
+
+.scoreValue {
+  background-color: #FEE8B0;
+}
+
+@media only screen and (min-width: 481px) {
+  
+}
+@media only screen and (min-width: 769px) {
+
+}
+@media only screen and (min-width: 1025px) {
+
+}
+
+
 
 /* What variables need to be updated with @media
 
