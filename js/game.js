@@ -98,8 +98,8 @@ const remainingTreasureDisplay = document.querySelector('#remainingTreasure')
 const collapseProbabilityDisplay = document.querySelector(
   '#collapseProbability'
 )
-/*----- functions -----*/
 
+/*----- functions -----*/
 const renderElements = () => {
   document.querySelector('#gameArea').className = roundEnded
     ? 'outsideTemple'
@@ -110,7 +110,6 @@ const renderElements = () => {
   eventMessageEl.style.visibility = roundEnded ? 'hidden' : 'initial'
   messageEl.style.color = roundEnded ? 'black' : 'rgba(245, 245, 245, 0.6)'
 
-  //How could I use DRY here?
   remainingTreasureDisplay.style.visibility =
     roundEnded && !templeCollapse ? 'hidden' : 'initial'
   collapseProbabilityDisplay.style.visibility = roundEnded
@@ -154,12 +153,10 @@ const init = () => {
     totalScore: 0,
     roundScore: 0
   }
-  //zero out prior rounds events & messages
-
   render()
 }
 
-//Shuffle alorithm: https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+//Fisher-Yates shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 const deckInit = () => {
   let roundDeck = [...cards]
 
@@ -171,7 +168,6 @@ const deckInit = () => {
 }
 
 //how is the runEvent function running here?
-//Add await to the message el
 const initRound = async () => {
   startRound.style.visibility = 'hidden'
   round += 1
@@ -239,7 +235,6 @@ const eventType = (event) => {
   }
 }
 
-//This needs to be the delayed function
 const newEvent = () => {
   currentEvent = deck.pop()
   playedCards.push(currentEvent)
@@ -343,13 +338,89 @@ const gameStatus = () => {
   if (gameEnded) checkWinner()
 }
 
+//clean this up & improve the run estimates from just 50/50
+const playerDescisionExpectation = (opp1Ran, opp2Ran) => {
+  let outcomes = {
+    allCont: 0,
+    twoCont: 0,
+    oneCont: 0
+  }
+
+  if (!opp1Ran && !opp2Ran) {
+    outcomes = {
+      allCont: 0.25,
+      twoCont: 0.5,
+      oneCont: 0.25
+    }
+  } else if (opp1Ran && opp2Ran) {
+    outcomes = {
+      allCont: 0,
+      twoCont: 0,
+      oneCont: 1
+    }
+  } else {
+    outcomes = {
+      allCont: 0,
+      twoCont: 0.5,
+      oneCont: 0.5
+    }
+  }
+  return outcomes
+}
+
+const onlyPlayerRuns = (opp1Ran, opp2Ran) => {
+  if (opp1Ran && opp2Ran) {
+    return 1
+  } else if (!opp1Ran && !opp2Ran) {
+    return 0.25
+  } else {
+    return 0.5
+  }
+}
+
+const oConnelDescision = () => {
+  let outcomesContinue = []
+  let outcomesRun = []
+  let expectedDescisions = playerDescisionExpectation()
+
+  //continue
+  cards.forEach((card) => {
+    if (card.includes('Treasure')) {
+      let value = +card.split(' ')[1]
+      let expectedValue =
+        value * expectedDescisions.oneCont +
+        Math.floor(value / 2) * expectedDescisions.twoCont +
+        Math.floor(value / 3) * expectedDescisions.allCont
+      outcomesContinue.push(expectedValue)
+    } else if (playedCards.includes(card)) {
+      outcomesContinue.push(-oConnel.roundScore)
+    }
+  })
+
+  //run
+  //doesn't currently include artifacts
+  outcomesRun.push(remainingTreasure * onlyPlayerRuns(playerRan, computerRan))
+
+  let continueEV = outcomesContinue.reduce((acc, outcome) => acc + outcome, 0)
+  let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
+
+  //continue = for each remaining card
+  //scenario 1: loot divide by 3
+  //scenario 2: loot divide by 2
+  //scenario 3: recieve full treasure value
+
+  //run = for each remaining card
+  //scenario 1: recieve remaining treasure and artifacts
+  //scenario 2: don't recieve remaining treasure and artifacts
+}
+
 //Overhaul functions estimating if the player will run, and the expected value of continuing
 const playerRunExpectation = () => {
   if (playerRan) return 1
   return 0.5
 }
 
-const computerDescisionSync = (delay = 0) => {
+const jonesDescision = (delay = 0) => {
   let outcomesContinue = []
 
   cards.forEach((card) => {
@@ -374,7 +445,7 @@ const computerDescisionSync = (delay = 0) => {
 
 const computerDescisionAsync = async () => {
   while (!computerRan && !roundEnded) {
-    let computerMove = await computerDescisionSync(1500)
+    let computerMove = await jonesDescision(1500)
     remainingTreasureDisplay.style.visibility = 'hidden'
     collapseProbabilityDisplay.style.visibility = 'hidden'
     scoreRound(null, computerMove)
@@ -393,7 +464,7 @@ const handleDescision = async (e) => {
   collapseProbabilityDisplay.style.visibility = 'hidden'
 
   let playerMove = e.target.className
-  let computerMove = computerRan ? null : await computerDescisionSync()
+  let computerMove = computerRan ? null : await jonesDescision()
 
   scoreRound(playerMove, computerMove)
   await updateMessage(playerMove, computerMove)
@@ -407,7 +478,6 @@ const handleDescision = async (e) => {
 }
 
 /*----- event listeners -----*/
-
 playerChoices.addEventListener('click', handleDescision)
 
 startRound.addEventListener('click', initRound)
