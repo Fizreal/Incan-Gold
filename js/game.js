@@ -1,25 +1,29 @@
 /*----- constants -----*/
 const eventObjects = {
-  Treasure: { img: '<img src="imgs/treasure.png" alt="Treasure">' },
-  Artifact: { img: '<img src="imgs/artifact.png" alt="Artifact">' },
+  Treasure: {
+    img: '<img src="imgs/treasure.png" alt="Treasure" title="Treasure is split evenly between the remaining players in the temple">'
+  },
+  Artifact: {
+    img: '<img src="imgs/artifact.png" alt="Artifact" title="If only one player leaves the temple the turn an artifact is played, they score the entire value">'
+  },
   Mummy: {
-    img: '<img src="imgs/mummy.png" alt="Mummy">',
+    img: '<img src="imgs/mummy.png" alt="Mummy" title="If a second Mummy hazard is played this round the temple will collapse">',
     desc: '...there is a dragging sound and a loud groan as a mummy limps out of the darkness!'
   },
   Snake: {
-    img: '<img src="imgs/snake.png" alt="Snake">',
+    img: '<img src="imgs/snake.png" alt="Snake" title="If a second Snake hazard is played this round the temple will collapse">',
     desc: '...there is a rattling and a hiss before a snake lunges out from behind a rock!'
   },
   Spider: {
-    img: '<img src="imgs/spider.png" alt="Spider">',
+    img: '<img src="imgs/spider.png" alt="Spider" title="If a second Spider hazard is played this round the temple will collapse">',
     desc: '...the room is filled with cobwebs when suddenly hundreds of spiders begin descending from the ceiling!'
   },
   Rockfall: {
-    img: '<img src="imgs/rockfall.png" alt="Rockfall">',
+    img: '<img src="imgs/rockfall.png" alt="Rockfall" title="If a second Rockfall hazard is played this round the temple will collapse">',
     desc: '...a lone rock falls to the floor, before suddenly huge rocks begin crashing all around!'
   },
   Fire: {
-    img: '<img src="imgs/fire.png" alt="Fire">',
+    img: '<img src="imgs/fire.png" alt="Fire" title="If a second Fire hazard is played this round the temple will collapse">',
     desc: '...the flame from your tortch ignates a methane deposit, causing fire to shoot up from the ground!'
   }
 }
@@ -115,11 +119,9 @@ const renderElements = () => {
   eventMessageEl.style.visibility = roundEnded ? 'hidden' : 'initial'
   messageEl.style.color = roundEnded ? 'black' : 'rgba(245, 245, 245, 0.6)'
 
-  remainingTreasureDisplay.style.visibility =
+  remainingTreasureDisplay.style.visibility = roundEnded ? 'hidden' : 'initial'
+  collapseProbabilityDisplay.style.visibility =
     roundEnded && !templeCollapse ? 'hidden' : 'initial'
-  collapseProbabilityDisplay.style.visibility = roundEnded
-    ? 'hidden'
-    : 'initial'
 }
 
 const renderScore = () => {
@@ -358,8 +360,8 @@ const collapseProbability = () => {
 
 const updateGameElements = () => {
   if (roundEnded && remainingPlayers().count > 0) {
-    remainingTreasureDisplay.innerHTML = '<b>The temple begins to collapse<b>'
-    collapseProbabilityDisplay.innerText = ''
+    remainingTreasureDisplay.innerHTML = ''
+    collapseProbabilityDisplay.innerHTML = '<b>The temple begins to collapse<b>'
   } else {
     remainingTreasureDisplay.innerHTML = `Remaining Treasure: ${remainingTreasure}`
     collapseProbabilityDisplay.innerText = `Collapse Probability: ${Math.floor(
@@ -404,26 +406,31 @@ const scoreRound = () => {
   })
 }
 
-//DRY here
+const currentScores = () => {
+  let currentScores = []
+  characters.forEach((character) => {
+    currentScores.push(character.totalScore + character.roundScore)
+  })
+  return currentScores
+}
+
 const checkWinner = () => {
-  if (
-    player.totalScore > jones.totalScore &&
-    player.totalScore > oConnel.totalScore
-  ) {
-    winner = 'You'
-  } else if (
-    jones.totalScore > player.totalScore &&
-    jones.totalScore > oConnel.totalScore
-  ) {
-    winner = 'Jones'
-  } else if (
-    oConnel.totalScore > jones.totalScore &&
-    oConnel.totalScore > player.totalScore
-  ) {
-    winner = "O'Connel"
-  } else {
+  let scores = currentScores()
+  let maxScore = Math.max(...scores)
+  let maxScoreTie = scores.filter((score) => {
+    return score === maxScore
+  }).length
+
+  if (maxScoreTie > 1) {
     winner = 'tie'
+  } else {
+    characters.forEach((character) => {
+      if (character.totalScore === maxScore) {
+        winner = character.name
+      }
+    })
   }
+
   gameState.innerText = winnerMessages[winner]
 }
 
@@ -478,6 +485,7 @@ const computerDescision = (character, delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
   let expectedDescisions = playerDescisionExpectation()
+  let riskAversion = Math.random()
 
   //continue
   deck.forEach((card) => {
@@ -489,7 +497,7 @@ const computerDescision = (character, delay = 0) => {
         Math.floor(value / 3) * expectedDescisions.allCont
       outcomesContinue.push(expectedValue)
     } else if (playedCards.includes(card)) {
-      outcomesContinue.push(-character.roundScore * (1.5 - Math.random()))
+      outcomesContinue.push(-character.roundScore * (1.75 - 1.5 * riskAversion))
     } else {
       outcomesContinue.push(0)
     }
@@ -505,7 +513,6 @@ const computerDescision = (character, delay = 0) => {
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
   let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
-  console.log(outcomesContinue, outcomesRun, continueEV)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(descision)
