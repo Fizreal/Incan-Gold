@@ -404,7 +404,7 @@ const scoreRound = () => {
   })
 }
 
-//DRY here, nested for loop
+//DRY here
 const checkWinner = () => {
   if (
     player.totalScore > jones.totalScore &&
@@ -437,21 +437,22 @@ const gameStatus = () => {
   if (gameEnded) checkWinner()
 }
 
-//clean this up & improve the run estimates from just 50/50
-const playerDescisionExpectation = (opp1Ran, opp2Ran) => {
+//clean this up
+const playerDescisionExpectation = () => {
+  let playerCount = remainingPlayers().count
   let outcomes = {
     allCont: 0,
     twoCont: 0,
     oneCont: 0
   }
 
-  if (!opp1Ran && !opp2Ran) {
+  if (playerCount === 3) {
     outcomes = {
       allCont: 0.25,
       twoCont: 0.5,
       oneCont: 0.25
     }
-  } else if (opp1Ran && opp2Ran) {
+  } else if (playerCount === 2) {
     outcomes = {
       allCont: 0,
       twoCont: 0,
@@ -467,21 +468,16 @@ const playerDescisionExpectation = (opp1Ran, opp2Ran) => {
   return outcomes
 }
 
-const onlyPlayerRuns = (opp1Ran, opp2Ran) => {
-  if (opp1Ran && opp2Ran) {
-    return 1
-  } else if (!opp1Ran && !opp2Ran) {
-    return 0.25
-  } else {
-    return 0.5
-  }
+const onlyPlayerRuns = () => {
+  let playerCount = remainingPlayers().count
+
+  return 0.5 ** (playerCount - 1)
 }
 
-//use this function for both computer moves, add a parameter for riskAversion to differentiate their behaviour
-const oConnelDescision = (delay = 0) => {
+const computerDescision = (character, delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
-  let expectedDescisions = playerDescisionExpectation(player.ran, jones.ran)
+  let expectedDescisions = playerDescisionExpectation()
 
   //continue
   deck.forEach((card) => {
@@ -493,7 +489,7 @@ const oConnelDescision = (delay = 0) => {
         Math.floor(value / 3) * expectedDescisions.allCont
       outcomesContinue.push(expectedValue)
     } else if (playedCards.includes(card)) {
-      outcomesContinue.push(-oConnel.roundScore)
+      outcomesContinue.push(-character.roundScore * (1.5 - Math.random()))
     } else {
       outcomesContinue.push(0)
     }
@@ -503,45 +499,13 @@ const oConnelDescision = (delay = 0) => {
   let artifactBonus = currentEvent.includes('Artifact')
     ? +currentEvent.split(' ')[1]
     : 0
-  outcomesRun.push(
-    (remainingTreasure + artifactBonus) * onlyPlayerRuns(player.ran, jones.ran)
-  )
+  outcomesRun.push((remainingTreasure + artifactBonus) * onlyPlayerRuns())
 
   let continueEV =
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
   let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
-  // console.log(, outcomesContinue, outcomesRun, continueEV)
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(descision)
-    }, delay)
-  })
-}
-
-const jonesDescision = (delay = 0) => {
-  let outcomesContinue = []
-  let expectedDescisions = playerDescisionExpectation(player.ran, oConnel.ran)
-
-  deck.forEach((card) => {
-    if (card.includes('Treasure')) {
-      let value = +card.split(' ')[1]
-      let expectedValue =
-        value * expectedDescisions.oneCont +
-        Math.floor(value / 2) * expectedDescisions.twoCont +
-        Math.floor(value / 3) * expectedDescisions.allCont
-      outcomesContinue.push(expectedValue)
-    } else if (playedCards.includes(card)) {
-      outcomesContinue.push(-jones.roundScore)
-    } else {
-      outcomesContinue.push(0)
-    }
-  })
-  let continueEV =
-    outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
-    outcomesContinue.length
-  let descision = continueEV >= 0 ? 'continue' : 'run'
-  // console.log('jones', outcomesContinue, continueEV)
+  console.log(outcomesContinue, outcomesRun, continueEV)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(descision)
@@ -554,8 +518,8 @@ const computerDescisionAsync = async () => {
     let jonesDelay = oConnel.ran ? 2000 : 0
 
     player.move = null
-    jones.move = jones.ran ? null : await jonesDescision(jonesDelay)
-    oConnel.move = oConnel.ran ? null : await oConnelDescision(2000)
+    jones.move = jones.ran ? null : await computerDescision(jones, jonesDelay)
+    oConnel.move = oConnel.ran ? null : await computerDescision(oConnel, 2000)
 
     remainingTreasureDisplay.style.visibility = 'hidden'
     collapseProbabilityDisplay.style.visibility = 'hidden'
@@ -575,8 +539,8 @@ const handleDescision = async (e) => {
   collapseProbabilityDisplay.style.visibility = 'hidden'
 
   player.move = e.target.className
-  jones.move = jones.ran ? null : await jonesDescision()
-  oConnel.move = oConnel.ran ? null : await oConnelDescision()
+  jones.move = jones.ran ? null : await computerDescision(jones)
+  oConnel.move = oConnel.ran ? null : await computerDescision(oConnel)
 
   scoreRound()
   await updateMessage()
