@@ -54,13 +54,13 @@ const cards = [
   'Hazard: Spider',
   'Hazard: Rockfall',
   'Hazard: Fire'
-] //update to create using a card class?
+] //update to create using objects
 
 const winnerMessages = {
   tie: 'No winner, well played.',
-  player: "Congratulations, you've won!",
-  jones: 'Dr. Jones won, nice try.',
-  oConnel: "O'Connel won, nice try."
+  You: "Congratulations, you've won!",
+  Jones: 'Dr. Jones won, nice try.',
+  "O'Connel": "O'Connel won, nice try."
 }
 
 /*----- state variables -----*/
@@ -71,9 +71,7 @@ let jones
 let oConnel
 let remainingTreasure
 
-let playerRan
-let jonesRan
-let oConnelRan
+let characters
 
 let templeCollapse
 let roundEnded
@@ -135,7 +133,7 @@ const renderScore = () => {
 
 const renderControls = () => {
   playerChoices.style.visibility =
-    playerRan || roundEnded ? 'hidden' : 'initial'
+    player.ran || roundEnded ? 'hidden' : 'initial'
   startGame.style.visibility = gameEnded ? 'initial' : 'hidden'
   startRound.style.visibility = roundEnded && !gameEnded ? 'initial' : 'hidden'
   homePage.style.visibility = gameEnded ? 'initial' : 'hidden'
@@ -151,21 +149,29 @@ const init = () => {
   round = 0
   winner = null
   gameEnded = false
-  playerRan = false
-  computerRan = false
   roundEnded = true
   player = {
     totalScore: 0,
-    roundScore: 0
+    roundScore: 0,
+    move: null,
+    ran: false,
+    name: 'You'
   }
   jones = {
     totalScore: 0,
-    roundScore: 0
+    roundScore: 0,
+    move: null,
+    ran: false,
+    name: 'Jones'
   }
   oConnel = {
     totalScore: 0,
-    roundScore: 0
+    roundScore: 0,
+    move: null,
+    ran: false,
+    name: "O'Connel"
   }
+  characters = [player, jones, oConnel]
   artifacts = [
     'Artifact: 10',
     'Artifact: 10',
@@ -189,55 +195,42 @@ const deckInit = () => {
   return roundDeck
 }
 
-const sortedMoves = (playerMove, jonesMove, oConnelMove) => {
+const sortedMoves = () => {
   let movesObject = {
     cont: { count: 0, players: [] },
     run: { count: 0, players: [] }
   }
 
-  if (playerMove) {
-    if (playerRan) {
-      movesObject.run.count += 1
-      movesObject.run.players.push('You')
-    } else {
-      movesObject.cont.count += 1
-      movesObject.cont.players.push('You')
+  characters.forEach((character) => {
+    if (character.move) {
+      if (character.ran) {
+        movesObject.run.count += 1
+        movesObject.run.players.push(character.name)
+      } else {
+        movesObject.cont.count += 1
+        movesObject.cont.players.push(character.name)
+      }
     }
-  }
-  if (jonesMove) {
-    if (jonesRan) {
-      movesObject.run.count += 1
-      movesObject.run.players.push('Jones')
-    } else {
-      movesObject.cont.count += 1
-      movesObject.cont.players.push('Jones')
-    }
-  }
-  if (oConnelMove) {
-    if (oConnelRan) {
-      movesObject.run.count += 1
-      movesObject.run.players.push("O'Connel")
-    } else {
-      movesObject.cont.count += 1
-      movesObject.cont.players.push("O'Connel")
-    }
-  }
+  })
 
   return movesObject
 }
 
-const updateMessage = (playerMove, jonesMove, oConnelMove, delay = 1000) => {
+const updateMessage = (delay = 1000) => {
   if (currentEvent) {
     priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
     currentEventEl.innerHTML = ''
   }
   eventMessageEl.innerText = ''
 
-  let movesSummary = sortedMoves(playerMove, jonesMove, oConnelMove)
+  let movesSummary = sortedMoves()
 
-  if (movesSummary.cont.count === 3 || movesSummary.run.count === 3) {
+  if (
+    movesSummary.cont.count === characters.length ||
+    movesSummary.run.count === characters.length
+  ) {
     messageEl.innerText = `All three adventurers ${
-      movesSummary.cont.count === 3
+      movesSummary.cont.count === characters.length
         ? 'descend further into the temple'
         : 'return to the surface'
     }...`
@@ -299,13 +292,14 @@ const newEvent = () => {
 const initRound = async () => {
   startRound.style.visibility = 'hidden'
   round += 1
-  player.roundScore = 0
-  jones.roundScore = 0
-  oConnel.roundScore = 0
+
+  characters.forEach((character) => {
+    character.roundScore = 0
+    character.move = null
+    character.ran = false
+  })
+
   remainingTreasure = 0
-  playerRan = false
-  jonesRan = false
-  oConnelRan = false
   roundEnded = false
   templeCollapse = false
 
@@ -315,26 +309,20 @@ const initRound = async () => {
   gameState.innerText = `Round ${round}/5`
   priorEventsEl.innerHTML = 'Prior events:'
   remainingTreasureDisplay.style.visibility = 'hidden'
-  await updateMessage(null, null, null)
+  await updateMessage()
   runEvent()
   render()
 }
 
-//Use this in other functions
 const remainingPlayers = () => {
   let remainingPlayers = { count: 0, players: [] }
-  if (!playerRan) {
-    remainingPlayers.count += 1
-    remainingPlayers.players.push('You')
-  }
-  if (!jonesRan) {
-    remainingPlayers.count += 1
-    remainingPlayers.players.push('Jones')
-  }
-  if (!oConnelRan) {
-    remainingPlayers.count += 1
-    remainingPlayers.players.push("O'Connel")
-  }
+  characters.forEach((character) => {
+    if (!character.ran) {
+      remainingPlayers.count += 1
+      remainingPlayers.players.push(character.name)
+    }
+  })
+
   return remainingPlayers
 }
 
@@ -343,9 +331,10 @@ const divideTreasure = () => {
   let playerCount = remainingPlayers().count
   let treasureSplit = Math.floor(value / playerCount)
 
-  player.roundScore += playerRan ? 0 : treasureSplit
-  jones.roundScore += jonesRan ? 0 : treasureSplit
-  oConnel.roundScore += oConnelRan ? 0 : treasureSplit
+  characters.forEach((character) => {
+    character.roundScore += character.ran ? 0 : treasureSplit
+  })
+
   remainingTreasure += value % playerCount
 }
 
@@ -353,9 +342,9 @@ const checkForCollapse = () => {
   if (playedCards.slice(0, playedCards.length - 1).includes(currentEvent)) {
     templeCollapse = true
     roundEnded = true
-    player.roundScore = 0
-    jones.roundScore = 0
-    oConnel.roundScore = 0
+    characters.forEach((character) => {
+      character.roundScore = 0
+    })
   }
 }
 
@@ -389,13 +378,13 @@ const runEvent = () => {
   updateGameElements()
 }
 
-//Rename this function
-const scoreRound = (pMove, jMove, oMove) => {
+const scoreRound = () => {
   let runCount = 0
   let artifactBonus = 0
-  if (pMove === 'run') runCount += 1
-  if (jMove === 'run') runCount += 1
-  if (oMove === 'run') runCount += 1
+
+  characters.forEach((character) => {
+    if (character.move === 'run') runCount += 1
+  })
 
   if (runCount > 1) {
     remainingTreasure = 0
@@ -403,42 +392,35 @@ const scoreRound = (pMove, jMove, oMove) => {
   if (runCount === 1 && currentEvent.includes('Artifact')) {
     artifactBonus = +currentEvent.split(' ')[1]
   }
-  if (pMove === 'run') {
-    player.totalScore += player.roundScore + remainingTreasure + artifactBonus
-    player.roundScore = 0
-    remainingTreasure = 0
-    playerRan = true
-  }
-  if (jMove === 'run') {
-    jones.totalScore += jones.roundScore + remainingTreasure + artifactBonus
-    jones.roundScore = 0
-    remainingTreasure = 0
-    jonesRan = true
-  }
-  if (oMove === 'run') {
-    oConnel.totalScore += oConnel.roundScore + remainingTreasure + artifactBonus
-    oConnel.roundScore = 0
-    remainingTreasure = 0
-    oConnelRan = true
-  }
+
+  characters.forEach((character) => {
+    if (character.move === 'run') {
+      character.totalScore +=
+        character.roundScore + remainingTreasure + artifactBonus
+      character.roundScore = 0
+      remainingTreasure = 0
+      character.ran = true
+    }
+  })
 }
 
+//DRY here, nested for loop
 const checkWinner = () => {
   if (
     player.totalScore > jones.totalScore &&
     player.totalScore > oConnel.totalScore
   ) {
-    winner = 'player'
+    winner = 'You'
   } else if (
     jones.totalScore > player.totalScore &&
     jones.totalScore > oConnel.totalScore
   ) {
-    winner = 'jones'
+    winner = 'Jones'
   } else if (
     oConnel.totalScore > jones.totalScore &&
     oConnel.totalScore > player.totalScore
   ) {
-    winner = 'oConnel'
+    winner = "O'Connel"
   } else {
     winner = 'tie'
   }
@@ -447,7 +429,9 @@ const checkWinner = () => {
 
 const gameStatus = () => {
   if (!roundEnded) {
-    roundEnded = playerRan && jonesRan && oConnelRan ? true : false
+    roundEnded = characters.every((character) => {
+      return character.ran
+    })
   }
   gameEnded = roundEnded && round === 5 ? true : false
   if (gameEnded) checkWinner()
@@ -497,7 +481,7 @@ const onlyPlayerRuns = (opp1Ran, opp2Ran) => {
 const oConnelDescision = (delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
-  let expectedDescisions = playerDescisionExpectation()
+  let expectedDescisions = playerDescisionExpectation(player.ran, jones.ran)
 
   //continue
   deck.forEach((card) => {
@@ -520,7 +504,7 @@ const oConnelDescision = (delay = 0) => {
     ? +currentEvent.split(' ')[1]
     : 0
   outcomesRun.push(
-    (remainingTreasure + artifactBonus) * onlyPlayerRuns(playerRan, jonesRan)
+    (remainingTreasure + artifactBonus) * onlyPlayerRuns(player.ran, jones.ran)
   )
 
   let continueEV =
@@ -537,7 +521,7 @@ const oConnelDescision = (delay = 0) => {
 
 const jonesDescision = (delay = 0) => {
   let outcomesContinue = []
-  let expectedDescisions = playerDescisionExpectation()
+  let expectedDescisions = playerDescisionExpectation(player.ran, oConnel.ran)
 
   deck.forEach((card) => {
     if (card.includes('Treasure')) {
@@ -566,17 +550,18 @@ const jonesDescision = (delay = 0) => {
 }
 
 const computerDescisionAsync = async () => {
-  while ((!jonesRan || !oConnel) && !roundEnded) {
-    let jonesDelay = oConnelRan ? 2000 : 0
+  while ((!jones.ran || !oConnel.ran) && !roundEnded) {
+    let jonesDelay = oConnel.ran ? 2000 : 0
 
-    let jonesMove = jonesRan ? null : await jonesDescision(jonesDelay)
-    let oConnelMove = oConnelRan ? null : await oConnelDescision(2000)
+    player.move = null
+    jones.move = jones.ran ? null : await jonesDescision(jonesDelay)
+    oConnel.move = oConnel.ran ? null : await oConnelDescision(2000)
 
     remainingTreasureDisplay.style.visibility = 'hidden'
     collapseProbabilityDisplay.style.visibility = 'hidden'
-    scoreRound(null, jonesMove, oConnelMove)
-    await updateMessage(null, jonesMove, oConnelMove, 1000)
-    if (!jonesRan || !oConnelRan) runEvent()
+    scoreRound()
+    await updateMessage(1000)
+    if (!jones.ran || !oConnel.ran) runEvent()
     gameStatus()
     render()
   }
@@ -589,17 +574,17 @@ const handleDescision = async (e) => {
   remainingTreasureDisplay.style.visibility = 'hidden'
   collapseProbabilityDisplay.style.visibility = 'hidden'
 
-  let playerMove = e.target.className
-  let jonesMove = jonesRan ? null : await jonesDescision()
-  let oConnelMove = oConnelRan ? null : await oConnelDescision()
+  player.move = e.target.className
+  jones.move = jones.ran ? null : await jonesDescision()
+  oConnel.move = oConnel.ran ? null : await oConnelDescision()
 
-  scoreRound(playerMove, jonesMove, oConnelMove)
-  await updateMessage(playerMove, jonesMove, oConnelMove)
+  scoreRound()
+  await updateMessage()
 
-  if (!playerRan || !jonesRan || !oConnelRan) runEvent()
+  if (!player.ran || !jones.ran || !oConnel.ran) runEvent()
   gameStatus()
   render()
-  if (playerRan && (!jonesRan || !oConnelRan) && !roundEnded) {
+  if (player.ran && (!jones.ran || !oConnel.ran) && !roundEnded) {
     computerDescisionAsync()
   }
 }
