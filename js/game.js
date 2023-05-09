@@ -1,6 +1,7 @@
 /*----- constants -----*/
 const eventObjects = {
   Treasure: { img: '<img src="imgs/treasure.png" alt="Treasure">' },
+  Artifact: { img: '<img src="imgs/artifact.png" alt="Artifact">' },
   Mummy: {
     img: '<img src="imgs/mummy.png" alt="Mummy">',
     desc: '...there is a dragging sound and a loud groan as a mummy limps out of the darkness!'
@@ -79,6 +80,7 @@ let roundEnded
 let gameEnded
 
 let deck
+let artifacts
 let playedCards
 let currentEvent
 
@@ -164,12 +166,21 @@ const init = () => {
     totalScore: 0,
     roundScore: 0
   }
+  artifacts = [
+    'Artifact: 10',
+    'Artifact: 10',
+    'Artifact: 5',
+    'Artifact: 5',
+    'Artifact: 5'
+  ]
   render()
 }
 
 //Fisher-Yates shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 const deckInit = () => {
   let roundDeck = [...cards]
+  let roundArtifact = artifacts.pop()
+  roundDeck.push(roundArtifact)
 
   for (let i = roundDeck.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1))
@@ -178,7 +189,113 @@ const deckInit = () => {
   return roundDeck
 }
 
-//how is the runEvent function running here?
+const sortedMoves = (playerMove, jonesMove, oConnelMove) => {
+  let movesObject = {
+    cont: { count: 0, players: [] },
+    run: { count: 0, players: [] }
+  }
+
+  if (playerMove) {
+    if (playerRan) {
+      movesObject.run.count += 1
+      movesObject.run.players.push('You')
+    } else {
+      movesObject.cont.count += 1
+      movesObject.cont.players.push('You')
+    }
+  }
+  if (jonesMove) {
+    if (jonesRan) {
+      movesObject.run.count += 1
+      movesObject.run.players.push('Jones')
+    } else {
+      movesObject.cont.count += 1
+      movesObject.cont.players.push('Jones')
+    }
+  }
+  if (oConnelMove) {
+    if (oConnelRan) {
+      movesObject.run.count += 1
+      movesObject.run.players.push("O'Connel")
+    } else {
+      movesObject.cont.count += 1
+      movesObject.cont.players.push("O'Connel")
+    }
+  }
+
+  return movesObject
+}
+
+const updateMessage = (playerMove, jonesMove, oConnelMove, delay = 1000) => {
+  if (currentEvent) {
+    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
+    currentEventEl.innerHTML = ''
+  }
+  eventMessageEl.innerText = ''
+
+  let movesSummary = sortedMoves(playerMove, jonesMove, oConnelMove)
+
+  if (movesSummary.cont.count === 3 || movesSummary.run.count === 3) {
+    messageEl.innerText = `All three adventurers ${
+      movesSummary.cont.count === 3
+        ? 'descend further into the temple'
+        : 'return to the surface'
+    }...`
+  } else if (movesSummary.cont.count > 0 && movesSummary.run.count > 0) {
+    messageEl.innerText = `${movesSummary.run.players.join(
+      ' and '
+    )} return to the surface while ${movesSummary.cont.players.join(
+      ' and '
+    )} continue onward...`
+  } else if (movesSummary.cont.count > 0) {
+    messageEl.innerText = `${movesSummary.cont.players.join(
+      ' and '
+    )} continue onward...`
+  } else if (movesSummary.run.count > 0) {
+    messageEl.innerText = `${movesSummary.run.players.join(
+      ' and '
+    )} return to the surface...`
+  } else {
+    messageEl.innerText = 'All three adventurers enter the ancient temple...'
+  }
+
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve()
+    }, delay)
+  })
+}
+
+//DRY event type and new event functions
+const eventType = (event) => {
+  if (event.includes('Treasure')) {
+    return 'Treasure'
+  } else if (event.includes('Artifact')) {
+    return 'Artifact'
+  } else {
+    return event.split(' ')[1]
+  }
+}
+
+const newEvent = () => {
+  currentEvent = deck.pop()
+  playedCards.push(currentEvent)
+  let newEvent = eventType(currentEvent)
+  currentEventEl.innerHTML = eventObjects[newEvent].img
+  let value = +currentEvent.split(' ')[1]
+  if (newEvent === 'Treasure') {
+    eventMessageEl.innerText = `...and find ${value} treasure${
+      value > 1 ? "'s" : ''
+    }`
+  } else if (newEvent === 'Artifact') {
+    eventMessageEl.innerText = `... and find a ${
+      value === 5 ? 'small artifact (5)!' : 'large artifact (10)!'
+    }`
+  } else {
+    eventMessageEl.innerText = eventObjects[newEvent].desc
+  }
+}
+
 const initRound = async () => {
   startRound.style.visibility = 'hidden'
   round += 1
@@ -198,69 +315,9 @@ const initRound = async () => {
   gameState.innerText = `Round ${round}/5`
   priorEventsEl.innerHTML = 'Prior events:'
   remainingTreasureDisplay.style.visibility = 'hidden'
-  await updateMessage(null, null)
+  await updateMessage(null, null, null)
   runEvent()
   render()
-}
-
-//Use DRY here
-//Plus rename
-const updateMessage = (playerMove, jonesMove, oConnelMove, delay = 1000) => {
-  if (currentEvent) {
-    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
-    currentEventEl.innerHTML = ''
-  }
-  eventMessageEl.innerText = ''
-
-  if (playerMove && jonesMove && !playerRan && !jonesRan) {
-    messageEl.innerText = 'You both descend further into the temple...'
-  } else if (playerMove && jonesMove && playerRan && jonesRan) {
-    messageEl.innerText = 'You both return to the surface...'
-  } else if (playerMove && jonesMove && !playerRan && jonesRan) {
-    messageEl.innerText =
-      'You continue further while Dr. Jones returns to the surface...'
-  } else if (playerMove && jonesMove && playerRan && !jonesRan) {
-    messageEl.innerText =
-      'You return to the surface while Dr. Jones continues alone...'
-  } else if (playerMove && !playerRan) {
-    messageEl.innerText = 'You continue further into the temple...'
-  } else if (playerMove && playerRan) {
-    messageEl.innerText = 'You return to the surface...'
-  } else if (jonesMove && !jonesRan) {
-    messageEl.innerText = 'Dr. Jones continue further into the temple...'
-  } else if (jonesMove && jonesRan) {
-    messageEl.innerText = 'Dr. Jones return to the surface...'
-  } else if (!playerMove && !jonesMove) {
-    messageEl.innerText = 'You both enter the ancient temple...'
-  }
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve()
-    }, delay)
-  })
-}
-
-const eventType = (event) => {
-  if (event.includes('Treasure')) {
-    return 'Treasure'
-  } else {
-    return event.split(' ')[1]
-  }
-}
-
-const newEvent = () => {
-  currentEvent = deck.pop()
-  playedCards.push(currentEvent)
-  let newEvent = eventType(currentEvent)
-  currentEventEl.innerHTML = eventObjects[newEvent].img
-  if (newEvent === 'Treasure') {
-    let value = currentEvent.split(' ')[1]
-    eventMessageEl.innerText = `...and find ${value} treasure${
-      value > 1 ? "'s" : ''
-    }`
-  } else {
-    eventMessageEl.innerText = eventObjects[newEvent].desc
-  }
 }
 
 //Use this in other functions
@@ -335,6 +392,7 @@ const runEvent = () => {
 //Rename this function
 const scoreRound = (pMove, jMove, oMove) => {
   let runCount = 0
+  let artifactBonus = 0
   if (pMove === 'run') runCount += 1
   if (jMove === 'run') runCount += 1
   if (oMove === 'run') runCount += 1
@@ -342,20 +400,23 @@ const scoreRound = (pMove, jMove, oMove) => {
   if (runCount > 1) {
     remainingTreasure = 0
   }
+  if (runCount === 1 && currentEvent.includes('Artifact')) {
+    artifactBonus = +currentEvent.split(' ')[1]
+  }
   if (pMove === 'run') {
-    player.totalScore += player.roundScore + remainingTreasure
+    player.totalScore += player.roundScore + remainingTreasure + artifactBonus
     player.roundScore = 0
     remainingTreasure = 0
     playerRan = true
   }
   if (jMove === 'run') {
-    jones.totalScore += jones.roundScore + remainingTreasure
+    jones.totalScore += jones.roundScore + remainingTreasure + artifactBonus
     jones.roundScore = 0
     remainingTreasure = 0
     jonesRan = true
   }
   if (oMove === 'run') {
-    oConnel.totalScore += oConnel.roundScore + remainingTreasure
+    oConnel.totalScore += oConnel.roundScore + remainingTreasure + artifactBonus
     oConnel.roundScore = 0
     remainingTreasure = 0
     oConnelRan = true
@@ -432,6 +493,7 @@ const onlyPlayerRuns = (opp1Ran, opp2Ran) => {
   }
 }
 
+//use this function for both computer moves, add a parameter for riskAversion to differentiate their behaviour
 const oConnelDescision = (delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
@@ -454,27 +516,23 @@ const oConnelDescision = (delay = 0) => {
   })
 
   //run
-  //doesn't currently include artifacts
-  outcomesRun.push(remainingTreasure * onlyPlayerRuns(playerRan, computerRan))
+  let artifactBonus = currentEvent.includes('Artifact')
+    ? +currentEvent.split(' ')[1]
+    : 0
+  outcomesRun.push(
+    (remainingTreasure + artifactBonus) * onlyPlayerRuns(playerRan, jonesRan)
+  )
 
   let continueEV =
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
   let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
-  console.log('oconnel', outcomesContinue, outcomesRun, continueEV)
+  // console.log(, outcomesContinue, outcomesRun, continueEV)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(descision)
     }, delay)
   })
-  //continue = for each remaining card
-  //scenario 1: loot divide by 3
-  //scenario 2: loot divide by 2
-  //scenario 3: recieve full treasure value
-
-  //run = for each remaining card
-  //scenario 1: recieve remaining treasure and artifacts
-  //scenario 2: don't recieve remaining treasure and artifacts
 }
 
 const jonesDescision = (delay = 0) => {
@@ -499,7 +557,7 @@ const jonesDescision = (delay = 0) => {
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
   let descision = continueEV >= 0 ? 'continue' : 'run'
-  console.log('jones', outcomesContinue, continueEV)
+  // console.log('jones', outcomesContinue, continueEV)
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(descision)
