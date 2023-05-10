@@ -12,6 +12,10 @@ body {
   font-family: 'Ubuntu', sans-serif;
 }
 
+body.dark {
+  background-image: url('/imgs/Background-dark.jpg');
+  color: #EEEEEE;
+}
 
 header {
   display: flex;
@@ -23,6 +27,10 @@ header {
   font-style: italic;
 }
 
+header.dark {
+  background-color: #222831;
+}
+
 header > * {
   width: 50px
 }
@@ -32,6 +40,20 @@ header > h1 {
   width: 155px;
   color: #FE7F2D;
   text-shadow: -3px 3px black;
+}
+
+#toggleDark {
+  border: 2px solid #222831;
+  background-color: #393E46;
+  border-radius: 10px;
+  color: #EEEEEE;
+}
+
+.dark#toggleDark {
+  border: 2px solid #FE7F2D;
+  background-color: #FCCA46;
+  border-radius: 10px;
+  color: black;
 }
 
 #game {
@@ -60,21 +82,21 @@ header > h1 {
   font-family: 'Press Start 2P', cursive;
   font-size: 8px;
   color: rgba(245, 245, 245, 0.7);
+  background-image: url('/imgs/insideTemple.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
 }
 
 .exteriorMessage {
   color: black;
 }
 
-.outsideTemple {
+#gameArea.outsideTemple {
   background-image: url('/imgs/outsideTemple.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
 }
-.insideTemple {
-  background-image: url('/imgs/insideTemple.jpg');
-  background-size: cover;
-  background-repeat: no-repeat;
+
+#gameArea.outsideTemple.dark {
+  background-image: url('/imgs/outsideTemple-dark.jpg');
 }
 
 #previousEvents {
@@ -175,6 +197,12 @@ header > h1 {
   padding: 4px;
 }
 
+.dark#buttons > button {
+  color: #EEEEEE;
+  border: 3px solid #222831;
+  background-color: #393E46;
+}
+
 #startRound {
   width: 150px;
 }
@@ -201,12 +229,24 @@ header > h1 {
   background-color: #619B8A;
 }
 
+.scoring.dark > .name {
+  background-color: #222831;
+}
+
 .scoreName {
   background-color: #A1C181; 
 }
 
+.scoring.dark > .scoreName {
+  background-color: #393E46;
+}
+
 .scoreValue {
   background-color: #FCCA46;
+}
+
+.scoring.dark > .scoreValue {
+  background-color: #D65A31;
 }
 
 @media only screen and (min-width: 481px) {
@@ -286,6 +326,15 @@ header > h1 {
   }
 }
 @media only screen and (min-width: 769px) {  
+  header > * {
+    width: 100px;
+  }
+
+  #toggleDark {
+    font-size: 15px;
+    height: 30px;
+  }
+  
   #gameArea {
     border: 4px solid black;
     height: 550px;

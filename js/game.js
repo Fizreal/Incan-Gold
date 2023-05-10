@@ -63,8 +63,8 @@ const cards = [
 const winnerMessages = {
   tie: 'No winner, well played.',
   You: "Congratulations, you've won!",
-  Jones: 'Dr. Jones won, nice try.',
-  "O'Connel": "O'Connel won, nice try."
+  Jones: 'Henry Jones won, nice try.',
+  "O'Connel": "Rick O'Connel won, nice try."
 }
 
 /*----- state variables -----*/
@@ -110,9 +110,14 @@ const collapseProbabilityDisplay = document.querySelector(
 
 /*----- functions -----*/
 const renderElements = () => {
-  document.querySelector('#gameArea').className = roundEnded
-    ? 'outsideTemple'
-    : 'insideTemple'
+  if (roundEnded) {
+    document.querySelector('#gameArea').classList.add('outsideTemple')
+  } else {
+    document.querySelector('#gameArea').classList.remove('outsideTemple')
+  }
+  // document.querySelector('#gameArea').className = roundEnded
+  //   ? 'outsideTemple'
+  //   : 'insideTemple'
   priorEventsEl.style.visibility =
     !roundEnded && playedCards.length > 1 ? 'initial' : 'hidden'
   currentEventEl.style.visibility = roundEnded ? 'hidden' : 'initial'
@@ -561,6 +566,22 @@ const handleDescision = async (e) => {
   }
 }
 
+const toggleDarkMode = (e) => {
+  e.target.classList.toggle('dark')
+  e.target.innerText = e.target.innerText.includes('Dark')
+    ? 'Light Mode'
+    : 'Dark Mode'
+
+  document.querySelector('body').classList.toggle('dark')
+  document.querySelector('header').classList.toggle('dark')
+  document.querySelector('#buttons').classList.toggle('dark')
+  const scoreboards = [...document.querySelectorAll('.scoring')]
+  scoreboards.forEach((board) => {
+    board.classList.toggle('dark')
+  })
+  document.querySelector('#gameArea').classList.toggle('dark')
+}
+
 /*----- event listeners -----*/
 playerChoices.addEventListener('click', handleDescision)
 
@@ -569,5 +590,7 @@ startGame.addEventListener('click', init)
 homePage.addEventListener('click', () => {
   location.href = '/index.html'
 })
+
+document.querySelector('#toggleDark').addEventListener('click', toggleDarkMode)
 
 init()
