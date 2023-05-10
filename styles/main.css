@@ -15,20 +15,47 @@ body {
   font-family: 'Ubuntu', sans-serif;
 }
 
+body.dark {
+  background-image: url('/imgs/Background-dark.jpg');
+}
+
 header {
   display: flex;
   width: 100%;
   height: 55px;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   background-color: #233D4D;
   font-style: italic;
+  color: #FE7F2D;
+}
+
+header.dark {
+  background-color: #222831;
+}
+
+header > * {
+  width: 50px
 }
 
 header > h1 {
   margin: 0;
-  color: #FE7F2D;
+  width: 160px;
   text-shadow: -3px 3px black;
+}
+
+#toggleDark {
+  border: 2px solid #222831;
+  background-color: #393E46;
+  border-radius: 10px;
+  color: #EEEEEE;
+}
+
+.dark#toggleDark {
+  border: 2px solid #FE7F2D;
+  background-color: #FCCA46;
+  border-radius: 10px;
+  color: black;
 }
 
 #gamePromt {
@@ -40,6 +67,11 @@ header > h1 {
   background-color: rgb(252, 202, 70, 0.6);
 }
 
+.dark#gamePromt {
+  background-color: rgb(57, 62, 70, 0.6);
+  color: #EEEEEE;
+}
+
 p {
   margin: 8px 0px 8px 0px;
 }
@@ -47,6 +79,10 @@ p {
 article {
   width: 350px;
   font-size: 15px;
+}
+
+article.dark {
+  color: #EEEEEE;
 }
 
 h2 {
@@ -57,20 +93,30 @@ h2 {
 ul {
   margin-top: 0px ;
   padding-left: 15px;
-  background-color: rgb(161, 193, 129, 0.6);
+  background-color: rgb(252, 202, 70, 0.6);
+}
+
+ul.dark {
+  background-color: rgb(57, 62, 70, 0.6);
 }
 
 li {
   padding: 8px 0px 8px 0px;
 }
 
-button {
+#startGame {
   width: 150px;
   border-radius: 12px;
   border: 3px solid #FE7F2D;
   background-color: #FCCA46;
   font-size: 15px;
   padding: 4px;
+}
+
+.dark#startGame {
+  color: #EEEEEE;
+  border: 3px solid #222831;
+  background-color: #393E46;
 }
 
 @media only screen and (min-width: 481px) {
@@ -101,7 +147,7 @@ button {
     padding: 8px 0px 8px 0px;
   }
   
-  button {
+  #startGame {
     margin-top: 15px;
     width: 150px;
     height: 35px;
@@ -112,6 +158,15 @@ button {
 }
 
 @media only screen and (min-width: 769px) {
+  header > * {
+    width: 100px;
+  }
+
+  #toggleDark {
+    font-size: 15px;
+    height: 30px;
+  }
+
   #gamePromt {
     margin-top: 25px;
     width: 500px;
@@ -140,7 +195,7 @@ button {
     padding: 8px 0px 8px 0px;
   }
   
-  button {
+  #startGame {
     margin-top: 15px;
     height: 35px;
     font-size: 18px;
@@ -177,7 +232,7 @@ button {
     padding: 8px 0px 8px 0px;
   }
   
-  button {
+  #startGame {
     width: 200px;
     height: 45px;
     border-radius: 15px;
