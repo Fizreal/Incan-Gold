@@ -28,37 +28,37 @@ const eventObjects = {
   }
 }
 const cards = [
-  'Treasure: 1',
-  'Treasure: 2',
-  'Treasure: 3',
-  'Treasure: 4',
-  'Treasure: 5',
-  'Treasure: 6',
-  'Treasure: 7',
-  'Treasure: 8',
-  'Treasure: 9',
-  'Treasure: 10',
-  'Treasure: 11',
-  'Treasure: 12',
-  'Treasure: 13',
-  'Treasure: 14',
-  'Treasure: 15',
-  'Hazard: Mummy',
-  'Hazard: Snake',
-  'Hazard: Spider',
-  'Hazard: Rockfall',
-  'Hazard: Fire',
-  'Hazard: Mummy',
-  'Hazard: Snake',
-  'Hazard: Spider',
-  'Hazard: Rockfall',
-  'Hazard: Fire',
-  'Hazard: Mummy',
-  'Hazard: Snake',
-  'Hazard: Spider',
-  'Hazard: Rockfall',
-  'Hazard: Fire'
-] //update to create using objects
+  { type: 'Treasure', value: 1 },
+  { type: 'Treasure', value: 2 },
+  { type: 'Treasure', value: 3 },
+  { type: 'Treasure', value: 4 },
+  { type: 'Treasure', value: 5 },
+  { type: 'Treasure', value: 6 },
+  { type: 'Treasure', value: 7 },
+  { type: 'Treasure', value: 8 },
+  { type: 'Treasure', value: 9 },
+  { type: 'Treasure', value: 10 },
+  { type: 'Treasure', value: 11 },
+  { type: 'Treasure', value: 12 },
+  { type: 'Treasure', value: 13 },
+  { type: 'Treasure', value: 14 },
+  { type: 'Treasure', value: 15 },
+  { type: 'Hazard', value: 'Mummy' },
+  { type: 'Hazard', value: 'Snake' },
+  { type: 'Hazard', value: 'Spider' },
+  { type: 'Hazard', value: 'Rockfall' },
+  { type: 'Hazard', value: 'Fire' },
+  { type: 'Hazard', value: 'Mummy' },
+  { type: 'Hazard', value: 'Snake' },
+  { type: 'Hazard', value: 'Spider' },
+  { type: 'Hazard', value: 'Rockfall' },
+  { type: 'Hazard', value: 'Fire' },
+  { type: 'Hazard', value: 'Mummy' },
+  { type: 'Hazard', value: 'Snake' },
+  { type: 'Hazard', value: 'Spider' },
+  { type: 'Hazard', value: 'Rockfall' },
+  { type: 'Hazard', value: 'Fire' }
+]
 
 const winnerMessages = {
   tie: 'No winner, well played.',
@@ -175,11 +175,11 @@ const init = () => {
   }
   characters = [player, jones, oConnel]
   artifacts = [
-    'Artifact: 10',
-    'Artifact: 10',
-    'Artifact: 5',
-    'Artifact: 5',
-    'Artifact: 5'
+    { type: 'Artifact', value: 10 },
+    { type: 'Artifact', value: 10 },
+    { type: 'Artifact', value: 5 },
+    { type: 'Artifact', value: 5 },
+    { type: 'Artifact', value: 5 }
   ]
   render()
 }
@@ -220,7 +220,10 @@ const sortedMoves = () => {
 
 const updateMessage = (delay = 1000) => {
   if (currentEvent) {
-    priorEventsEl.innerHTML += eventObjects[eventType(currentEvent)].img
+    priorEventsEl.innerHTML +=
+      eventObjects[
+        currentEvent.type === 'Hazard' ? currentEvent.value : currentEvent.type
+      ].img
     currentEventEl.innerHTML = ''
   }
   eventMessageEl.innerText = ''
@@ -239,7 +242,7 @@ const updateMessage = (delay = 1000) => {
   } else if (movesSummary.cont.count > 0 && movesSummary.run.count > 0) {
     messageEl.innerText = `${movesSummary.run.players.join(
       ' and '
-    )} return to the surface while ${movesSummary.cont.players.join(
+    )} leave the temple while ${movesSummary.cont.players.join(
       ' and '
     )} continue onward...`
   } else if (movesSummary.cont.count > 0) {
@@ -261,34 +264,116 @@ const updateMessage = (delay = 1000) => {
   })
 }
 
-//DRY event type and new event functions
-const eventType = (event) => {
-  if (event.includes('Treasure')) {
-    return 'Treasure'
-  } else if (event.includes('Artifact')) {
-    return 'Artifact'
-  } else {
-    return event.split(' ')[1]
-  }
-}
-
 const newEvent = () => {
   currentEvent = deck.pop()
   playedCards.push(currentEvent)
-  let newEvent = eventType(currentEvent)
-  currentEventEl.innerHTML = eventObjects[newEvent].img
-  let value = +currentEvent.split(' ')[1]
-  if (newEvent === 'Treasure') {
+  let eventType =
+    currentEvent.type === 'Hazard' ? currentEvent.value : currentEvent.type
+  currentEventEl.innerHTML = eventObjects[eventType].img
+  let value = currentEvent.value
+  if (currentEvent.type === 'Treasure') {
     eventMessageEl.innerText = `...and find ${value} treasure${
       value > 1 ? "'s" : ''
     }`
-  } else if (newEvent === 'Artifact') {
+  } else if (currentEvent.type === 'Artifact') {
     eventMessageEl.innerText = `... and find a ${
       value === 5 ? 'small artifact (5)!' : 'large artifact (10)!'
     }`
   } else {
-    eventMessageEl.innerText = eventObjects[newEvent].desc
+    eventMessageEl.innerText = eventObjects[currentEvent.value].desc
   }
+}
+
+const remainingPlayers = () => {
+  let remainingPlayers = { count: 0, players: [] }
+  characters.forEach((character) => {
+    if (!character.ran) {
+      remainingPlayers.count += 1
+      remainingPlayers.players.push(character.name)
+    }
+  })
+
+  return remainingPlayers
+}
+
+const divideTreasure = () => {
+  let value = currentEvent.value
+  let playerCount = remainingPlayers().count
+  let treasureSplit = Math.floor(value / playerCount)
+
+  characters.forEach((character) => {
+    character.roundScore += character.ran ? 0 : treasureSplit
+  })
+
+  remainingTreasure += value % playerCount
+}
+
+const checkForCollapse = () => {
+  playedCards.slice(0, playedCards.length - 1).forEach((card) => {
+    if (card.value === currentEvent.value) {
+      templeCollapse = true
+      roundEnded = true
+      characters.forEach((character) => {
+        character.roundScore = 0
+      })
+    }
+  })
+}
+
+const collapseProbability = () => {
+  let hazards = 0
+  playedCards.forEach((card) => {
+    if (card.type === 'Hazard') hazards += 1
+  })
+  return (hazards * 2) / deck.length
+}
+
+const updateGameElements = () => {
+  if (roundEnded && remainingPlayers().count > 0) {
+    remainingTreasureDisplay.innerHTML = ''
+    collapseProbabilityDisplay.innerHTML = '<b>The temple begins to collapse<b>'
+  } else {
+    remainingTreasureDisplay.innerHTML = `Remaining Treasure: ${remainingTreasure}`
+    collapseProbabilityDisplay.innerText = `Collapse Probability: ${Math.floor(
+      collapseProbability() * 100
+    )}%`
+  }
+}
+
+const runEvent = () => {
+  newEvent()
+  if (currentEvent.type === 'Treasure') {
+    divideTreasure()
+  } else {
+    checkForCollapse()
+  }
+  updateGameElements()
+}
+
+const scoreRound = () => {
+  let runCount = 0
+  let artifactBonus = 0
+
+  characters.forEach((character) => {
+    if (character.move === 'run') runCount += 1
+  })
+
+  if (runCount > 1) {
+    remainingTreasure = 0
+  }
+  if (runCount === 1 && currentEvent.type === 'Artifact') {
+    artifactBonus = currentEvent.value
+  }
+
+  characters.forEach((character) => {
+    if (character.move === 'run') {
+      character.totalScore +=
+        character.roundScore + remainingTreasure + artifactBonus
+      character.roundScore = 0
+      remainingTreasure = 0
+      character.ran = true
+    }
+  })
 }
 
 const initRound = async () => {
@@ -314,96 +399,6 @@ const initRound = async () => {
   await updateMessage()
   runEvent()
   render()
-}
-
-const remainingPlayers = () => {
-  let remainingPlayers = { count: 0, players: [] }
-  characters.forEach((character) => {
-    if (!character.ran) {
-      remainingPlayers.count += 1
-      remainingPlayers.players.push(character.name)
-    }
-  })
-
-  return remainingPlayers
-}
-
-const divideTreasure = () => {
-  let value = +currentEvent.split(' ')[1]
-  let playerCount = remainingPlayers().count
-  let treasureSplit = Math.floor(value / playerCount)
-
-  characters.forEach((character) => {
-    character.roundScore += character.ran ? 0 : treasureSplit
-  })
-
-  remainingTreasure += value % playerCount
-}
-
-const checkForCollapse = () => {
-  if (playedCards.slice(0, playedCards.length - 1).includes(currentEvent)) {
-    templeCollapse = true
-    roundEnded = true
-    characters.forEach((character) => {
-      character.roundScore = 0
-    })
-  }
-}
-
-const collapseProbability = () => {
-  let hazards = 0
-  playedCards.forEach((card) => {
-    if (card.includes('Hazard')) hazards += 1
-  })
-  return (hazards * 2) / deck.length
-}
-
-const updateGameElements = () => {
-  if (roundEnded && remainingPlayers().count > 0) {
-    remainingTreasureDisplay.innerHTML = ''
-    collapseProbabilityDisplay.innerHTML = '<b>The temple begins to collapse<b>'
-  } else {
-    remainingTreasureDisplay.innerHTML = `Remaining Treasure: ${remainingTreasure}`
-    collapseProbabilityDisplay.innerText = `Collapse Probability: ${Math.floor(
-      collapseProbability() * 100
-    )}%`
-  }
-}
-
-const runEvent = () => {
-  newEvent()
-  if (currentEvent.includes('Treasure')) {
-    divideTreasure()
-  } else {
-    checkForCollapse()
-  }
-  updateGameElements()
-}
-
-const scoreRound = () => {
-  let runCount = 0
-  let artifactBonus = 0
-
-  characters.forEach((character) => {
-    if (character.move === 'run') runCount += 1
-  })
-
-  if (runCount > 1) {
-    remainingTreasure = 0
-  }
-  if (runCount === 1 && currentEvent.includes('Artifact')) {
-    artifactBonus = +currentEvent.split(' ')[1]
-  }
-
-  characters.forEach((character) => {
-    if (character.move === 'run') {
-      character.totalScore +=
-        character.roundScore + remainingTreasure + artifactBonus
-      character.roundScore = 0
-      remainingTreasure = 0
-      character.ran = true
-    }
-  })
 }
 
 const currentScores = () => {
@@ -481,22 +476,29 @@ const onlyPlayerRuns = () => {
   return 0.5 ** (playerCount - 1)
 }
 
+//seperate out the continue and run calculation functions
 const computerDescision = (character, delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
   let expectedDescisions = playerDescisionExpectation()
   let riskAversion = Math.random()
+  let currentHazards = []
+  playedCards.forEach((playedCard) => {
+    if (playedCard.type === 'Hazard') {
+      currentHazards.push(playedCard.value)
+    }
+  })
 
   //continue
   deck.forEach((card) => {
-    if (card.includes('Treasure')) {
-      let value = +card.split(' ')[1]
+    if (card.type === 'Treasure') {
+      let value = card.value
       let expectedValue =
         value * expectedDescisions.oneCont +
         Math.floor(value / 2) * expectedDescisions.twoCont +
         Math.floor(value / 3) * expectedDescisions.allCont
       outcomesContinue.push(expectedValue)
-    } else if (playedCards.includes(card)) {
+    } else if (currentHazards.includes(card.value)) {
       outcomesContinue.push(-character.roundScore * (1.75 - 1.5 * riskAversion))
     } else {
       outcomesContinue.push(0)
@@ -504,14 +506,13 @@ const computerDescision = (character, delay = 0) => {
   })
 
   //run
-  let artifactBonus = currentEvent.includes('Artifact')
-    ? +currentEvent.split(' ')[1]
-    : 0
+  let artifactBonus = currentEvent.type === 'Artifact' ? currentEvent.value : 0
   outcomesRun.push((remainingTreasure + artifactBonus) * onlyPlayerRuns())
 
   let continueEV =
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
+  console.log(outcomesContinue, outcomesRun, continueEV, riskAversion)
   let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
   return new Promise((resolve) => {
     setTimeout(() => {
