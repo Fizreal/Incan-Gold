@@ -107,6 +107,7 @@ const remainingTreasureDisplay = document.querySelector('#remainingTreasure')
 const collapseProbabilityDisplay = document.querySelector(
   '#collapseProbability'
 )
+const toggleButton = document.querySelector('#toggleDark')
 
 /*----- functions -----*/
 const renderElements = () => {
@@ -567,8 +568,8 @@ const handleDescision = async (e) => {
 }
 
 const toggleDarkMode = (e) => {
-  e.target.classList.toggle('dark')
-  e.target.innerText = e.target.innerText.includes('Dark')
+  toggleButton.classList.toggle('dark')
+  toggleButton.innerText = toggleButton.innerText.includes('Dark')
     ? 'Light Mode'
     : 'Dark Mode'
 
@@ -580,6 +581,18 @@ const toggleDarkMode = (e) => {
     board.classList.toggle('dark')
   })
   document.querySelector('#gameArea').classList.toggle('dark')
+
+  if (e) {
+    localStorage.darkMode = localStorage.darkMode === 'off' ? 'on' : 'off'
+  }
+}
+
+const setDarkMode = () => {
+  if (!localStorage.darkMode) {
+    localStorage.darkMode = 'off'
+  } else if (localStorage.darkMode === 'on') {
+    toggleDarkMode()
+  }
 }
 
 /*----- event listeners -----*/
@@ -594,3 +607,4 @@ homePage.addEventListener('click', () => {
 document.querySelector('#toggleDark').addEventListener('click', toggleDarkMode)
 
 init()
+setDarkMode()

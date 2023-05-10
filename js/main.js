@@ -5,10 +5,11 @@ const promt = document.querySelector('#gamePromt')
 const rules = document.querySelector('article')
 const ruleList = document.querySelector('ul')
 const startGame = document.querySelector('#startGame')
+const toggleButton = document.querySelector('#toggleDark')
 
 const toggleDarkMode = (e) => {
-  e.target.classList.toggle('dark')
-  e.target.innerText = e.target.innerText.includes('Dark')
+  toggleButton.classList.toggle('dark')
+  toggleButton.innerText = toggleButton.innerText.includes('Dark')
     ? 'Light Mode'
     : 'Dark Mode'
   body.classList.toggle('dark')
@@ -17,6 +18,20 @@ const toggleDarkMode = (e) => {
   rules.classList.toggle('dark')
   ruleList.classList.toggle('dark')
   startGame.classList.toggle('dark')
+
+  if (e) {
+    localStorage.darkMode = localStorage.darkMode === 'off' ? 'on' : 'off'
+  }
 }
 
 document.querySelector('#toggleDark').addEventListener('click', toggleDarkMode)
+
+const setDarkMode = () => {
+  if (!localStorage.darkMode) {
+    localStorage.darkMode = 'off'
+  } else if (localStorage.darkMode === 'on') {
+    toggleDarkMode()
+  }
+}
+
+setDarkMode()
