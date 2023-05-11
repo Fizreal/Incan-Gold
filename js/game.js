@@ -27,38 +27,6 @@ const eventObjects = {
     desc: '...the flame from your tortch ignates a methane deposit, causing fire to shoot up from the ground!'
   }
 }
-const cards = [
-  { type: 'Treasure', value: 1 },
-  { type: 'Treasure', value: 2 },
-  { type: 'Treasure', value: 3 },
-  { type: 'Treasure', value: 4 },
-  { type: 'Treasure', value: 5 },
-  { type: 'Treasure', value: 6 },
-  { type: 'Treasure', value: 7 },
-  { type: 'Treasure', value: 8 },
-  { type: 'Treasure', value: 9 },
-  { type: 'Treasure', value: 10 },
-  { type: 'Treasure', value: 11 },
-  { type: 'Treasure', value: 12 },
-  { type: 'Treasure', value: 13 },
-  { type: 'Treasure', value: 14 },
-  { type: 'Treasure', value: 15 },
-  { type: 'Hazard', value: 'Mummy' },
-  { type: 'Hazard', value: 'Snake' },
-  { type: 'Hazard', value: 'Spider' },
-  { type: 'Hazard', value: 'Rockfall' },
-  { type: 'Hazard', value: 'Fire' },
-  { type: 'Hazard', value: 'Mummy' },
-  { type: 'Hazard', value: 'Snake' },
-  { type: 'Hazard', value: 'Spider' },
-  { type: 'Hazard', value: 'Rockfall' },
-  { type: 'Hazard', value: 'Fire' },
-  { type: 'Hazard', value: 'Mummy' },
-  { type: 'Hazard', value: 'Snake' },
-  { type: 'Hazard', value: 'Spider' },
-  { type: 'Hazard', value: 'Rockfall' },
-  { type: 'Hazard', value: 'Fire' }
-]
 
 const winnerMessages = {
   tie: 'No winner, well played.',
@@ -87,7 +55,7 @@ let playedCards
 let currentEvent
 
 /*----- cached elements  -----*/
-//reorder these so they aren't just random
+//reorder these
 const playerChoices = document.querySelector('#playerChoices')
 const gameState = document.querySelector('#gameState')
 const messageEl = document.querySelector('#statusMessage')
@@ -116,9 +84,6 @@ const renderElements = () => {
   } else {
     document.querySelector('#gameArea').classList.remove('outsideTemple')
   }
-  // document.querySelector('#gameArea').className = roundEnded
-  //   ? 'outsideTemple'
-  //   : 'insideTemple'
   priorEventsEl.style.visibility =
     !roundEnded && playedCards.length > 1 ? 'initial' : 'hidden'
   currentEventEl.style.visibility = roundEnded ? 'hidden' : 'initial'
@@ -192,7 +157,19 @@ const init = () => {
 
 //Fisher-Yates shuffle algorithm: https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 const deckInit = () => {
-  let roundDeck = [...cards]
+  let roundDeck = []
+  let hazards = ['Mummy', 'Fire', 'Snake', 'Spider', 'Rockfall']
+
+  for (let i = 1; i < 16; i++) {
+    roundDeck.push({ type: 'Treasure', value: i })
+  }
+
+  for (let i = 0; i < 3; i++) {
+    hazards.forEach((hazard) => {
+      roundDeck.push({ type: 'Hazard', value: hazard })
+    })
+  }
+
   let roundArtifact = artifacts.pop()
   roundDeck.push(roundArtifact)
 
