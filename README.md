@@ -4,13 +4,13 @@
 
 ### By: Adam Buffett
 
-[GitHub](https://github.com/Fizreal) | [LinkedIn](https://www.linkedin.com/in/adam-buffett/)
+[GitHub](https://github.com/Fizreal) | [LinkedIn](https://www.linkedin.com/in/adam-buffett/) | [Trello](https://trello.com/b/5PEWXqkP/incan-gold)
 
 ---
 
 #### **_Description_**
 
-Incan Gold is a push-your-luck game where you explore ancient incan temples in search of treasure. Each turn, players decide if they want to continue further into the temple or return to the surface and secure what they have collected, after which an event card will be played from the deck. Every treasure card will be split between the players who chose to venture deeper, but if hazard cards cause the temple to collapse while you are still inside you will lose all everything you've collected during the round.
+Incan Gold is a push-your-luck game where you explore ancient incan temples in search of treasure. Each turn, players decide if they want to continue further into the temple or return to the surface and secure what they have collected. After all the players have choosen an event card will be played from the deck. Every treasure card will be split between the players who chose to venture deeper, but if hazard cards cause the temple to collapse while you are still inside you will lose all everything you've collected during the round.
 
 The game plays over five rounds, and the player who finishes the game with the highest total score wins!
 
@@ -21,49 +21,65 @@ The game plays over five rounds, and the player who finishes the game with the h
 - HTML
 - CSS
 - JavaScript
-- VSCode
-- Git
-- GitHub
-- Node.js
 
 ---
 
 #### **_Getting Started_**
 
-Follow the link to the game below and read through the rules. Once you are ready to start, click the "Play game" button and you will be redirected to the game page.
+Follow the [link]() to the game and read through the rules. Once you are ready to start, click the "Start Game" button and you will be redirected to the game page.
 
-A Trello board was used to keep track of developmenet progress and can be viewed [here]().
-
-The project itself was deployed and can be viewed [here]().
+Alternatively, the the repository can be cloned and host locally using the 'Live Server' extension in Visual Studio Code.
 
 ---
 
 #### **_Screenshots_**
 
-**Placeholder**
+**Initial wireframe**
 
-![Image](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse3.mm.bing.net%2Fth%3Fid%3DOIP.ZMbOr-t19l3uo7ijGciVEwHaEK%26pid%3DApi&f=1&ipt=d3cde5897deccfb4fb3a550df7b0aceb2ea5c5ae49e082a2679a70bc5ff220f8&ipo=images)
+![Image](https://i.imgur.com/ucbmdndl.jpg)
 
-**Placeholder**
+**Mobile design - Dark Mode**
 
-![Image](https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.bK1F9_b0YQqG3VI88TYJJgHaFj%26pid%3DApi&f=1&ipt=10bf5914157409259f95c1619851ff5d81a657103aafb2b74d15fc3ad48de76b&ipo=images)
+![Image](https://i.imgur.com/HElklQ0l.png)
+
+**Wide screen design - Light Mode**
+
+![Image](https://i.imgur.com/nXZnBpKl.png)
+
+**Gameplay screen**
+
+![Image](https://i.imgur.com/6mo3i15l.png)
 
 ---
 
 #### **_Task List_**
 
-- [ ] Deploy MVP
-  - [ ] Construct landing and game pages
-  - [ ] CSS formatting
-  - [ ] Develop game logic functions
-  - [ ] Design computer AI (Anna Indie)
-- [ ] Create responsive CSS formatting
-- [ ] Add enhanced UI elements (Risk of collapse %, display status of each player in the round, hover descriptions)
-- [ ] Implement treasure artifacts
-- [ ] Add a second AI player
+- [x] Deploy MVP
+  - [x] ~~Construct landing and game pages~~
+  - [x] ~~Develop game logic functions~~
+  - [x] ~~Implement computer AI (Henry Jones)~~
+  - [x] ~~Include Async functions in the game loop~~
+  - [x] ~~Create responsive CSS formatting~~
+- [x] Implement artifacts event cards
+- [x] Add a second AI player (Rick O'Connel)
+- [x] Dark Mode design
+- [ ] Enhance computer decision functions
 
 ---
 
 #### **_Credits_**
 
 **Game Rules**: [The Mind Cafe](https://themindcafe.com.sg/wp-content/uploads/2018/02/Incan-Gold.pdf)
+
+**Deck Shuffle**: [Fisher-Yates Algorithm](https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle)
+
+**Game Icons**:
+
+- [Flaticon](https://www.flaticon.com/)
+  - [Treasure](https://www.flaticon.com/free-icon/treasure_2144792)
+  - [Mummy](https://www.flaticon.com/free-icon/mummy_2332720)
+  - [Snake](https://www.flaticon.com/free-icon/rattlesnake_10653987)
+  - [Spider](https://www.flaticon.com/free-icon/spider_852100)
+  - [Rockfall](https://www.flaticon.com/free-icon/landslide_5896105)
+  - [Fire](https://www.flaticon.com/free-icon/fire_785116)
+  - [Artifact](https://www.flaticon.com/free-icon/chinese-coin_1916545)

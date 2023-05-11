@@ -4,7 +4,7 @@ const eventObjects = {
     img: '<img src="imgs/treasure.png" alt="Treasure" title="Treasure is split evenly between the remaining players in the temple">'
   },
   Artifact: {
-    img: '<img src="imgs/artifact.png" alt="Artifact" title="If only one player leaves the temple the turn an artifact is played, they score the entire value">'
+    img: '<img src="imgs/artifact.png" alt="Artifact" title="If only one player leaves the temple the turn after an artifact is played, they score the entire value">'
   },
   Mummy: {
     img: '<img src="imgs/mummy.png" alt="Mummy" title="If a second Mummy hazard is played this round the temple will collapse">',
@@ -24,7 +24,7 @@ const eventObjects = {
   },
   Fire: {
     img: '<img src="imgs/fire.png" alt="Fire" title="If a second Fire hazard is played this round the temple will collapse">',
-    desc: '...the flame from your tortch ignates a methane deposit, causing fire to shoot up from the ground!'
+    desc: '...the flame from your torch ignites a natural gas deposit, causing fire to shoot up from the ground!'
   }
 }
 
@@ -55,7 +55,6 @@ let playedCards
 let currentEvent
 
 /*----- cached elements  -----*/
-//reorder these
 const playerChoices = document.querySelector('#playerChoices')
 const gameState = document.querySelector('#gameState')
 const messageEl = document.querySelector('#statusMessage')
@@ -145,13 +144,6 @@ const init = () => {
     name: "O'Connel"
   }
   characters = [player, jones, oConnel]
-  artifacts = [
-    { type: 'Artifact', value: 10 },
-    { type: 'Artifact', value: 10 },
-    { type: 'Artifact', value: 5 },
-    { type: 'Artifact', value: 5 },
-    { type: 'Artifact', value: 5 }
-  ]
   render()
 }
 
@@ -170,8 +162,7 @@ const deckInit = () => {
     })
   }
 
-  let roundArtifact = artifacts.pop()
-  roundDeck.push(roundArtifact)
+  roundDeck.push({ type: 'Artifact', value: round > 3 ? 10 : 5 })
 
   for (let i = roundDeck.length - 1; i > 0; i--) {
     let j = Math.floor(Math.random() * (i + 1))
@@ -212,6 +203,10 @@ const updateMessage = (delay = 1000) => {
   eventMessageEl.innerText = ''
 
   let movesSummary = sortedMoves()
+  let leaveS =
+    movesSummary.run.count === 1 && !movesSummary.run.players.includes('You')
+  let continueS =
+    movesSummary.cont.count === 1 && !movesSummary.cont.players.includes('You')
 
   if (
     movesSummary.cont.count === characters.length ||
@@ -223,19 +218,19 @@ const updateMessage = (delay = 1000) => {
         : 'return to the surface'
     }...`
   } else if (movesSummary.cont.count > 0 && movesSummary.run.count > 0) {
-    messageEl.innerText = `${movesSummary.run.players.join(
-      ' and '
-    )} leave the temple while ${movesSummary.cont.players.join(
-      ' and '
-    )} continue onward...`
+    messageEl.innerText = `${movesSummary.run.players.join(' and ')} leave${
+      leaveS ? 's' : ''
+    } the temple while ${movesSummary.cont.players.join(' and ')} continue${
+      continueS ? 's' : ''
+    } onward...`
   } else if (movesSummary.cont.count > 0) {
-    messageEl.innerText = `${movesSummary.cont.players.join(
-      ' and '
-    )} continue onward...`
+    messageEl.innerText = `${movesSummary.cont.players.join(' and ')} continue${
+      continueS ? 's' : ''
+    } onward...`
   } else if (movesSummary.run.count > 0) {
-    messageEl.innerText = `${movesSummary.run.players.join(
-      ' and '
-    )} return to the surface...`
+    messageEl.innerText = `${movesSummary.run.players.join(' and ')} return${
+      leaveS ? 's' : ''
+    } to the surface...`
   } else {
     messageEl.innerText = 'All three adventurers enter the ancient temple...'
   }
@@ -327,7 +322,7 @@ const runEvent = () => {
   newEvent()
   if (currentEvent.type === 'Treasure') {
     divideTreasure()
-  } else {
+  } else if (currentEvent.type === 'Hazard') {
     checkForCollapse()
   }
   updateGameElements()
@@ -422,34 +417,20 @@ const gameStatus = () => {
   if (gameEnded) checkWinner()
 }
 
-//clean this up
 const playerDescisionExpectation = () => {
   let playerCount = remainingPlayers().count
+
   let outcomes = {
-    allCont: 0,
-    twoCont: 0,
-    oneCont: 0
+    allCont: playerCount > 2 ? 0.5 ** (playerCount - 1) : 0,
+    twoCont:
+      playerCount > 2
+        ? 0.5 ** (playerCount - 2)
+        : playerCount > 1
+        ? 0.5 ** (playerCount - 1)
+        : 0,
+    oneCont: 0.5 ** (playerCount - 1)
   }
 
-  if (playerCount === 3) {
-    outcomes = {
-      allCont: 0.25,
-      twoCont: 0.5,
-      oneCont: 0.25
-    }
-  } else if (playerCount === 2) {
-    outcomes = {
-      allCont: 0,
-      twoCont: 0,
-      oneCont: 1
-    }
-  } else {
-    outcomes = {
-      allCont: 0,
-      twoCont: 0.5,
-      oneCont: 0.5
-    }
-  }
   return outcomes
 }
 
@@ -459,7 +440,6 @@ const onlyPlayerRuns = () => {
   return 0.5 ** (playerCount - 1)
 }
 
-//seperate out the continue and run calculation functions
 const computerDescision = (character, delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
@@ -472,7 +452,6 @@ const computerDescision = (character, delay = 0) => {
     }
   })
 
-  //continue
   deck.forEach((card) => {
     if (card.type === 'Treasure') {
       let value = card.value
@@ -488,15 +467,14 @@ const computerDescision = (character, delay = 0) => {
     }
   })
 
-  //run
   let artifactBonus = currentEvent.type === 'Artifact' ? currentEvent.value : 0
   outcomesRun.push((remainingTreasure + artifactBonus) * onlyPlayerRuns())
 
   let continueEV =
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
-  console.log(outcomesContinue, outcomesRun, continueEV, riskAversion)
   let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
+
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve(descision)

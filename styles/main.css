@@ -61,7 +61,7 @@ header > h1 {
 #gamePromt {
   margin-top: 15px;
   width: 350px;
-  font-size: 15px;
+  font-size: 14px;
   font-style: italic;
   text-align: center;
   background-color: rgb(252, 202, 70, 0.6);
@@ -78,7 +78,7 @@ p {
 
 article {
   width: 350px;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 article.dark {
@@ -171,7 +171,7 @@ li {
 
   #gamePromt {
     margin-top: 25px;
-    width: 550px;
+    width: 600px;
     font-size: 18px;
   }
   
@@ -181,7 +181,7 @@ li {
   
   article {
     margin-top: 15px;
-    width: 550px;
+    width: 600px;
     font-size: 18px;
   }
   
@@ -235,9 +235,9 @@ li {
   
   #startGame {
     width: 200px;
-    height: 45px;
+    height: 40px;
     border-radius: 15px;
-    margin-top: 10px;
+    margin-top: 15px;
     font-size: 24px;
   }
 }
