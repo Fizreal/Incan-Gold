@@ -1,6 +1,6 @@
 # Incan Gold
 
-## Date: 4/4/2023
+## Date: 4/12/2023
 
 ### By: Adam Buffett
 
@@ -10,7 +10,7 @@
 
 #### **_Description_**
 
-Incan Gold is a push-your-luck game where you explore ancient incan temples in search of treasure. Each turn, players decide if they want to continue further into the temple or return to the surface and secure what they have collected. After all the players have choosen an event card will be played from the deck. Every treasure card will be split between the players who chose to venture deeper, but if hazard cards cause the temple to collapse while you are still inside you will lose all everything you've collected during the round.
+Incan Gold is a push-your-luck game where you explore ancient incan temples in search of treasure. Each turn, players decide if they want to continue further into the temple or return to the surface and secure what they have collected. After all the players have chosen an event card will be played from the deck. The value of treasure cards is split between the players who chose to venture deeper, but if hazard cards cause the temple to collapse while you are still inside you will lose all everything you've collected during the round.
 
 The game plays over five rounds, and the player who finishes the game with the highest total score wins!
 
@@ -28,7 +28,7 @@ The game plays over five rounds, and the player who finishes the game with the h
 
 Follow the [link](https://incan-gold.surge.sh/) to the game and read through the rules. Once you are ready to start, click the "Start Game" button and you will be redirected to the game page.
 
-Alternatively, the the repository can be cloned and host locally using the 'Live Server' extension in Visual Studio Code.
+Alternatively, the repository can be cloned and hosted locally using the 'Live Server' extension in Visual Studio Code.
 
 ---
 
