@@ -37,7 +37,8 @@ header > * {
 
 header > h1 {
   margin: 0;
-  width: 155px;
+  text-align: center;
+  width: 175px;
   color: #FE7F2D;
   text-shadow: -3px 3px black;
 }
@@ -193,6 +194,7 @@ header > h1 {
   border-radius: 12px;
   border: 3px solid #FE7F2D;
   background-color: #FCCA46;
+  color: black;
   font-size: 9px;
   padding: 4px;
 }
@@ -203,13 +205,13 @@ header > h1 {
   background-color: #393E46;
 }
 
-#startRound {
-  width: 150px;
+#buttons > #startRound {
+  width: 125px;
 }
 
 .scoring {
   display: grid;
-  grid-template-columns: 95px 40px;
+  grid-template-columns: 105px 40px;
   grid-template-rows: 30px 25px 25px;
   border: 1px solid black;
   margin: 20px;
@@ -313,12 +315,12 @@ header > h1 {
     padding: 4px;
     border-radius: 15px;
   }
-  #startRound {
-    width: 175px;
+  #buttons > #startRound {
+    width: 150px;
   }
   
   .scoring {
-    grid-template-columns: 125px 50px;
+    grid-template-columns: 130px 50px;
     grid-template-rows: 35px 30px 30px;
     border: 1px solid black;
     margin: 25px;
@@ -393,8 +395,8 @@ header > h1 {
     height: 40px;
   }
 
-  #startRound {
-    width: 200px;
+  #buttons > #startRound {
+    width: 175px;
   }
   
   .scoring {

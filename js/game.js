@@ -50,7 +50,6 @@ let roundEnded
 let gameEnded
 
 let deck
-let artifacts
 let playedCards
 let currentEvent
 
@@ -417,7 +416,7 @@ const gameStatus = () => {
   if (gameEnded) checkWinner()
 }
 
-const playerDescisionExpectation = () => {
+const playerDecisionExpectation = () => {
   let playerCount = remainingPlayers().count
 
   let outcomes = {
@@ -440,11 +439,11 @@ const onlyPlayerRuns = () => {
   return 0.5 ** (playerCount - 1)
 }
 
-const computerDescision = (character, delay = 0) => {
+const computerDecision = (character, delay = 0) => {
   let outcomesContinue = []
   let outcomesRun = []
-  let expectedDescisions = playerDescisionExpectation()
-  let riskAversion = Math.random()
+  let expectedDecisions = playerDecisionExpectation()
+  let lossAversion = Math.random()
   let currentHazards = []
   playedCards.forEach((playedCard) => {
     if (playedCard.type === 'Hazard') {
@@ -456,12 +455,12 @@ const computerDescision = (character, delay = 0) => {
     if (card.type === 'Treasure') {
       let value = card.value
       let expectedValue =
-        value * expectedDescisions.oneCont +
-        Math.floor(value / 2) * expectedDescisions.twoCont +
-        Math.floor(value / 3) * expectedDescisions.allCont
+        value * expectedDecisions.oneCont +
+        Math.floor(value / 2) * expectedDecisions.twoCont +
+        Math.floor(value / 3) * expectedDecisions.allCont
       outcomesContinue.push(expectedValue)
     } else if (currentHazards.includes(card.value)) {
-      outcomesContinue.push(-character.roundScore * (1.75 - 1.5 * riskAversion))
+      outcomesContinue.push(-character.roundScore * (1.75 - 1.5 * lossAversion))
     } else {
       outcomesContinue.push(0)
     }
@@ -473,34 +472,34 @@ const computerDescision = (character, delay = 0) => {
   let continueEV =
     outcomesContinue.reduce((acc, outcome) => acc + outcome, 0) /
     outcomesContinue.length
-  let descision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
+  let decision = continueEV >= outcomesRun[0] ? 'continue' : 'run'
 
   return new Promise((resolve) => {
     setTimeout(() => {
-      resolve(descision)
+      resolve(decision)
     }, delay)
   })
 }
 
-const computerDescisionAsync = async () => {
+const computerDecisionAsync = async () => {
   while ((!jones.ran || !oConnel.ran) && !roundEnded) {
     let jonesDelay = oConnel.ran ? 2000 : 0
 
     player.move = null
-    jones.move = jones.ran ? null : await computerDescision(jones, jonesDelay)
-    oConnel.move = oConnel.ran ? null : await computerDescision(oConnel, 2000)
+    jones.move = jones.ran ? null : await computerDecision(jones, jonesDelay)
+    oConnel.move = oConnel.ran ? null : await computerDecision(oConnel, 2000)
 
     remainingTreasureDisplay.style.visibility = 'hidden'
     collapseProbabilityDisplay.style.visibility = 'hidden'
     scoreRound()
-    await updateMessage(1000)
+    await updateMessage()
     if (!jones.ran || !oConnel.ran) runEvent()
     gameStatus()
     render()
   }
 }
 
-const handleDescision = async (e) => {
+const handleDecision = async (e) => {
   if (e.target.tagName !== 'DIV') return
 
   playerChoices.style.visibility = 'hidden'
@@ -508,8 +507,8 @@ const handleDescision = async (e) => {
   collapseProbabilityDisplay.style.visibility = 'hidden'
 
   player.move = e.target.className
-  jones.move = jones.ran ? null : await computerDescision(jones)
-  oConnel.move = oConnel.ran ? null : await computerDescision(oConnel)
+  jones.move = jones.ran ? null : await computerDecision(jones)
+  oConnel.move = oConnel.ran ? null : await computerDecision(oConnel)
 
   scoreRound()
   await updateMessage()
@@ -518,7 +517,7 @@ const handleDescision = async (e) => {
   gameStatus()
   render()
   if (player.ran && (!jones.ran || !oConnel.ran) && !roundEnded) {
-    computerDescisionAsync()
+    computerDecisionAsync()
   }
 }
 
@@ -551,7 +550,7 @@ const setDarkMode = () => {
 }
 
 /*----- event listeners -----*/
-playerChoices.addEventListener('click', handleDescision)
+playerChoices.addEventListener('click', handleDecision)
 
 startRound.addEventListener('click', initRound)
 startGame.addEventListener('click', init)

@@ -40,7 +40,8 @@ header > * {
 
 header > h1 {
   margin: 0;
-  width: 160px;
+  text-align: center;
+  width: 175px;
   text-shadow: -3px 3px black;
 }
 
@@ -107,11 +108,14 @@ li {
 
 #startGame {
   width: 150px;
-  margin-top: 15px;
-  border-radius: 12px;
+  height: 30px;
+  margin: 15px 0px 10px 0px;
+  border-radius: 13px;
   border: 3px solid #FE7F2D;
   background-color: #FCCA46;
-  font-size: 15px;
+  color: black;
+  font-size: 9px;
+  font-family: 'Press Start 2P', cursive;
   padding: 4px;
 }
 
@@ -150,11 +154,10 @@ li {
   }
   
   #startGame {
-    margin-top: 15px;
     width: 150px;
     height: 35px;
-    border-radius: 12px;
-    font-size: 18px;
+    border-radius: 14px;
+    font-size: 12px;
     padding: 4px;
   }
 }
@@ -198,9 +201,9 @@ li {
   }
   
   #startGame {
-    margin-top: 15px;
+    width: 175px;
     height: 35px;
-    font-size: 18px;
+    border-radius: 15px;
   }
 }
 
@@ -234,10 +237,6 @@ li {
   }
   
   #startGame {
-    width: 200px;
-    height: 40px;
     border-radius: 15px;
-    margin-top: 15px;
-    font-size: 24px;
   }
 }

@@ -26,17 +26,13 @@ The game plays over five rounds, and the player who finishes the game with the h
 
 #### **_Getting Started_**
 
-Follow the [link]() to the game and read through the rules. Once you are ready to start, click the "Start Game" button and you will be redirected to the game page.
+Follow the [link](https://incan-gold.surge.sh/) to the game and read through the rules. Once you are ready to start, click the "Start Game" button and you will be redirected to the game page.
 
 Alternatively, the the repository can be cloned and host locally using the 'Live Server' extension in Visual Studio Code.
 
 ---
 
 #### **_Screenshots_**
-
-**Initial wireframe**
-
-![Image](https://i.imgur.com/ucbmdndl.jpg)
 
 **Mobile design - Dark Mode**
 
