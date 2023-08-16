@@ -1,6 +1,6 @@
 # Incan Gold
 
-## Date: 4/12/2023
+## Date: 5/12/2023
 
 ### By: Adam Buffett
 
@@ -17,6 +17,8 @@ The game plays over five rounds, and the player who finishes the game with the h
 ---
 
 #### **_Technologies Used_**
+
+![Technologies Used](https://skillicons.dev/icons?i=html,css,js)
 
 - HTML
 - CSS
